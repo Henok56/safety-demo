@@ -1,0 +1,63 @@
+/* ===================== CONTAINER ===================== */
+.about-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #2c2c2c;
+}
+
+/* ===================== TITLE ===================== */
+.about-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1f1f1f;
+}
+
+/* ===================== INTRO ===================== */
+.about-intro {
+  font-size: 16px;
+  line-height: 1.7;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #444;
+}
+
+/* ===================== SECTION ===================== */
+.about-section h2 {
+  font-size: 22px;
+  margin-bottom: 24px;
+  border-left: 4px solid #00a651;
+  padding-left: 12px;
+  color: #1f1f1f;
+}
+
+/* ===================== CARDS ===================== */
+.about-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e1e1e1;
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.about-card h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #00a651;
+}
+
+/* ===================== LIST ===================== */
+.about-card ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.about-card li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+  font-size: 15px;
+  color: #333;
+}

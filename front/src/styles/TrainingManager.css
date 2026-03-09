@@ -1,0 +1,163 @@
+/* Layout Containers */
+.manager-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.manager-header {
+  margin-bottom: 30px;
+  border-left: 5px solid #044b24; /* Ethiopian Green */
+  padding-left: 20px;
+}
+
+.manager-header h2 {
+  font-size: 28px;
+  color: #1e293b;
+  margin: 0;
+}
+
+.manager-header p {
+  color: #64748b;
+  margin-top: 5px;
+}
+
+/* Grid System */
+.manager-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+/* Form Styling */
+.manager-form .form-group {
+  margin-bottom: 20px;
+}
+
+.manager-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+}
+
+.manager-form select,
+.manager-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.manager-form select:focus,
+.manager-form input:focus {
+  outline: none;
+  border-color: #044b24;
+  ring: 2px solid #044b2422;
+}
+
+.add-btn {
+  width: 100%;
+  background: #044b24;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-btn:hover {
+  background: #03361a;
+}
+
+.add-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Table Styling */
+.list-header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.manager-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.manager-table th {
+  text-align: left;
+  padding: 12px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.manager-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+/* Badges for Categories */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.recurrent-training {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.career-development {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* Action Buttons */
+.del-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.del-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .manager-grid {
+    grid-template-columns: 1fr;
+  }
+}

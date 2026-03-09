@@ -1,0 +1,139 @@
+/* =========================
+   Admin Homepage
+   Matches Admin Standard
+========================= */
+.admin-homepage {
+  padding: 32px;
+  min-height: 100vh;
+  /* Background handled by AdminLayout, but can enforce transparent here */
+  background-color: transparent;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+}
+
+/* =========================
+   Hero Section
+========================= */
+.admin-hero {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-left: 6px solid #2563eb;
+  /* Brand accent */
+}
+
+.admin-hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.admin-hero h2 {
+  font-size: 18px;
+  font-weight: 400;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* =========================
+   Guidelines Grid
+========================= */
+.admin-guidelines {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+}
+
+/* Card Styling */
+.guideline-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.guideline-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Header with Accent Line */
+.guideline-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #111827;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Card Content List */
+.guideline-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guideline-card li {
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.6;
+  padding-left: 24px;
+  position: relative;
+}
+
+/* Custom Bullets */
+.guideline-card li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Success Card Specifics */
+.guideline-card:first-child li::before {
+  background-color: #10b981;
+  /* Green dot */
+}
+
+/* Danger Card Specifics */
+.guideline-card:last-child li::before {
+  background-color: #ef4444;
+  /* Red dot */
+}
+
+/* Top Border Accents */
+.guideline-card:first-child {
+  border-top: 4px solid #10b981;
+}
+
+.guideline-card:last-child {
+  border-top: 4px solid #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-homepage {
+    padding: 16px;
+  }
+
+  .admin-hero {
+    padding: 24px;
+  }
+
+  .admin-hero h1 {
+    font-size: 24px;
+  }
+}

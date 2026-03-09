@@ -1,0 +1,66 @@
+.home-slider {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Slide */
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;           /* fill container without distortion */
+  background-position: center;      /* center image */
+  background-repeat: no-repeat;     /* prevent tiling */
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  transform: none;
+  /* Sharper rendering options */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-backface-visibility: hidden; 
+  backface-visibility: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Dark overlay */
+.overlay {
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 20, 40, 0.3); /* lighter overlay for clearer images */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 40px;
+}
+
+/* Text */
+.overlay h1 {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.overlay p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .overlay h1 {
+    font-size: 2rem;
+  }
+
+  .overlay p {
+    font-size: 1rem;
+  }
+}

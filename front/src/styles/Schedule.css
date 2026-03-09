@@ -1,0 +1,61 @@
+.schedule-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.schedule-header h1 {
+  background: linear-gradient(90deg, #078930, #fcbf49, #d81b60); /* Ethiopian colors look */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.schedule-header input,
+.schedule-header button {
+  margin-left: 10px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.schedule-header button {
+  background-color: #fff;
+  border: 2px solid #078930;
+  font-weight: bold;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.schedule-table th {
+  background: #1e3a8a;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.schedule-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.schedule-table select {
+  padding: 4px 6px;
+  border-radius: 4px;
+}

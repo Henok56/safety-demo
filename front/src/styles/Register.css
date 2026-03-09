@@ -1,0 +1,154 @@
+/* Container to center the card */
+.register-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f2f5;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Main Card */
+.register-card {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 700px;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.icon-circle {
+  background: #2563eb;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 15px;
+}
+
+.register-header h2 {
+  color: #1e293b;
+  font-size: 24px;
+  margin: 0;
+}
+
+.register-header p {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Grid layout for the form */
+.register-grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns */
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make Email, Password, and Button span both columns if needed */
+.input-group.full-width, 
+.btn-register, 
+.alert-banner {
+  grid-column: span 2;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group input, 
+.input-group select {
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Action Button */
+.btn-register {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-register:hover {
+  background: #1d4ed8;
+}
+
+.btn-register:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Alert Banners */
+.alert-banner {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.alert-banner.success { background: #dcfce7; color: #166534; }
+.alert-banner.error { background: #fee2e2; color: #991b1b; }
+
+/* Spinner for Loading */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .register-grid-form {
+    grid-template-columns: 1fr;
+  }
+  .input-group.full-width, .btn-register, .alert-banner {
+    grid-column: span 1;
+  }
+}

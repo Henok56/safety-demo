@@ -1,0 +1,350 @@
+/* fdmForm.css - Ethiopian Airlines Safety Portal Styling */
+
+:root {
+    --ethiopian-blue: #1e40af;
+    --ethiopian-gold: #d4af37;
+    --safety-green: #166534;
+    --safety-red: #991b1b;
+    --slate-bg: #f8fafc;
+    --border-color: #e2e8f0;
+}
+
+.fdm-single-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: #ffffff;
+}
+
+/* Header Section */
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.brand-stack h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--ethiopian-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.brand-stack p {
+    color: #64748b;
+    font-weight: 500;
+    margin: 4px 0 0 0;
+}
+
+.btn-manual-add {
+    background: var(--ethiopian-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-manual-add:hover {
+    background: #1e3a8a;
+    transform: translateY(-1px);
+}
+
+/* Sync Table Section */
+.sync-section {
+    background: var(--slate-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.section-title h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0;
+}
+
+.table-wrapper {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.sync-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.sync-table th {
+    background: #f1f5f9;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.sync-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.row-active {
+    background-color: #f0f9ff !important;
+    border-left: 4px solid var(--ethiopian-blue);
+}
+
+.file-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.pending { background: #fef3c7; color: #92400e; }
+.status-badge.autosynced { background: #e0f2fe; color: #0369a1; }
+
+.btn-view {
+    background: white;
+    border: 1px solid var(--ethiopian-blue);
+    color: var(--ethiopian-blue);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-view:hover {
+    background: var(--ethiopian-blue);
+    color: white;
+}
+
+/* Entry Form Section */
+.form-container-bottom {
+    background: white;
+    border: 1px solid var(--ethiopian-blue);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.form-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.badge-mode {
+    background: var(--ethiopian-gold);
+    color: #453700;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.form-title {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--ethiopian-blue);
+}
+
+/* Form Grid */
+.fdm-grid-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.span-2 {
+    grid-column: span 2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    border-color: var(--ethiopian-blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.status-select-highlight {
+    background-color: #eff6ff;
+    border-color: var(--ethiopian-blue);
+    font-weight: 700;
+    color: var(--ethiopian-blue);
+}
+
+/* Upload Zone */
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 30px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-zone:hover {
+    background: #f1f5f9;
+    border-color: var(--ethiopian-blue);
+}
+
+.upload-zone span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Submit Button */
+.btn-save-main {
+    grid-column: span 2;
+    background: var(--ethiopian-blue);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-save-main:hover {
+    background: #1e3a8a;
+}
+
+.btn-save-main:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-clear {
+    background: #f1f5f9;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+/* Reference Box */
+.email-reference-box {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.email-reference-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #92400e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.content-body {
+    font-size: 0.85rem;
+    color: #78350f;
+    line-height: 1.5;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Animations */
+.animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .fdm-grid-form {
+        grid-template-columns: 1fr;
+    }
+    .span-2 {
+        grid-column: span 1;
+    }
+    .btn-save-main {
+        grid-column: span 1;
+    }
+}

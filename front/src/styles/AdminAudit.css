@@ -1,0 +1,330 @@
+/* --- Root Variables & Reset --- */
+:root {
+  --primary-blue: #1e3a8a;
+  --accent-cyan: #06b6d4;
+  --bg-dark: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  
+  --create-bg: #dcfce7; --create-text: #166534;
+  --update-bg: #fef9c3; --update-text: #854d0e;
+  --delete-bg: #fee2e2; --delete-text: #991b1b;
+  
+  /* Fallback to high-quality system fonts since external fonts are disabled */
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.audit-dashboard {
+  padding: 30px;
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+}
+
+/* --- Header Section --- */
+.audit-header-section {
+  margin-bottom: 30px;
+}
+
+.header-flex {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.main-history-icon {
+  font-size: 2.5rem;
+  color: var(--primary-blue);
+}
+
+.audit-header-section h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.audit-header-section p {
+  color: var(--text-muted);
+  margin: 5px 0 0 0;
+}
+
+/* --- Controls & Tab Switcher --- */
+.audit-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.tab-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  background: white;
+  color: var(--primary-blue);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* --- Search & Inputs --- */
+.search-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inner-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+}
+
+.search-input-wrapper input, 
+.date-picker {
+  padding: 10px 12px 10px 35px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.date-picker {
+  padding-left: 12px;
+}
+
+.search-btn {
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* --- Audit Cards --- */
+.audit-group-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04);
+}
+
+.group-banner {
+  background: #1e293b;
+  padding: 15px 25px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.type-tag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  background: var(--accent-cyan);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.group-banner h3 { margin: 0; font-size: 1.1rem; }
+
+.db-id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* --- Timeline Layout --- */
+.timeline-container {
+  padding: 25px 40px;
+  position: relative;
+}
+
+/* Vertical Line */
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 45px;
+  top: 30px;
+  bottom: 30px;
+  width: 2px;
+  background: #f1f5f9;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 40px;
+  margin-bottom: 25px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 3px solid var(--primary-blue);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.timeline-content {
+  background: #f8fafc;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.user-pill {
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timestamp { font-size: 0.8rem; color: var(--text-muted); }
+
+/* --- Action Badges --- */
+.action-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.action-badge.create { background: var(--create-bg); color: var(--create-text); }
+.action-badge.update { background: var(--update-bg); color: var(--update-text); }
+.action-badge.delete { background: var(--delete-bg); color: var(--delete-text); }
+
+/* --- Diff / Changes Grid --- */
+.diff-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.diff-row {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #edf2f7;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.diff-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.old-val { color: #e53e3e; text-decoration: line-through; opacity: 0.8; }
+.new-val { color: #38a169; font-weight: 600; }
+.arrow-icon { color: #cbd5e1; font-size: 0.7rem; }
+
+/* --- Empty States & Loading --- */
+.empty-audit-state {
+  text-align: center;
+  padding: 60px;
+  color: var(--text-muted);
+}
+
+.empty-audit-state span { font-size: 3rem; display: block; margin-bottom: 10px; }
+
+.audit-loader-wrapper {
+  text-align: center;
+  padding: 80px;
+}
+
+.loading-spinner {
+  width: 35px;
+  height: 35px;
+  border: 4px solid #e2e8f0;
+  border-top-color: var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Pagination --- */
+.audit-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0 50px;
+}
+
+.pag-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pag-nav:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-indicator { font-size: 0.9rem; color: var(--text-muted); }

@@ -1,0 +1,83 @@
+/* Container Setup */
+.assign-training-container {
+  padding: 30px;
+  max-width: 1300px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #fcfcfc;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Training Selection Area */
+.training-select {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-top: 4px solid #044b24; /* Ethiopian Green accent */
+}
+
+.training-select label {
+  font-weight: 600;
+  color: #334155;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.training-select select {
+  flex: 1;
+  max-width: 400px;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #1e293b;
+  cursor: pointer;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.training-select select:focus {
+  border-color: #044b24;
+  box-shadow: 0 0 0 3px rgba(4, 75, 36, 0.1);
+}
+
+/* Tab Content Container */
+.training-tab-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Animation for Tab Switching */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+  .training-select {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .training-select select {
+    max-width: 100%;
+    width: 100%;
+  }
+}
