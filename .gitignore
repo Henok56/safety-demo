@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# Frontend build output
+front/dist
+front/build
+
+# Backend environment files
+back/.env
+
+# Frontend environment files
+front/.env
+
+# OS or IDE files
+.DS_Store
+.vscode/
