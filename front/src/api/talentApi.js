@@ -1,23 +1,43 @@
 import axios from "axios";
 
+/**
+ * ✅ THE OFFICE-READY FIX:
+ * Detects if the app is running on your local machine or the Vercel cloud.
+ */
+const isLocal = 
+  window.location.hostname === "localhost" || 
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("192.168.") || 
+  window.location.hostname.startsWith("10.");
+
+/**
+ * 🚀 DYNAMIC BASE_URL:
+ * - Local: Uses the full address with port 5000.
+ * - Production: Uses a relative path "/api". 
+ * This kills the "Mixed Content" error by forcing the browser to stay on HTTPS.
+ */
+const BASE_URL = isLocal 
+  ? `http://${window.location.hostname}:5000/api` 
+  : "/api"; 
+
 const api = axios.create({
-  // Ensure this matches your backend IP/Port
-  baseURL: "http://localhost:5000/api",
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Needed for secure session handling
 });
 
 // ------------------ REQUEST INTERCEPTOR ------------------
 api.interceptors.request.use(
   (config) => {
-    // ✅ FIXED: Changed "token" to "accessToken" to match your Login.jsx
+    // ✅ Matches your Login.jsx storage key
     const token = localStorage.getItem("accessToken"); 
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      // This will help you see if a specific route is firing before login is complete
+      // Helps debug if a request fires before the user is logged in
       console.warn(`⚠️ No accessToken found for: ${config.url}`);
     }
     return config;
@@ -29,21 +49,26 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Check if the server sent a specific error message (like Mongoose validation)
     const serverMessage = error.response?.data?.message || error.response?.data?.error;
     
+    // 400 Bad Request (Validation errors)
     if (error.response?.status === 400) {
       console.error("❌ Validation Error:", serverMessage);
-      alert(`Submission Failed: ${serverMessage}`); // Temporary alert for debugging
     }
 
-    if (error.response?.status === 401) {
+    // 401 Unauthorized (Expired or missing token)
+    if (error.response?.status === 401 && !window.location.pathname.includes("/login")) {
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
       window.location.href = "/login"; 
     }
     return Promise.reject(error);
   }
 );
+
+/* ============================================================
+    EXPORTED API SERVICES (Unified under 'api' instance)
+   ============================================================ */
 
 // ------------------ CAREER DEVELOPMENT ------------------
 export const getCareerRecords = () => api.get("/career");
@@ -64,7 +89,6 @@ export const updateLeadershipRecord = (id, payload) => api.put(`/leadership/${id
 export const deleteLeadershipRecord = (id) => api.delete(`/leadership/${id}`);
 
 // ------------------ RECURRENT TRAINING ------------------
-// ✅ Corrected to match your backend: /api/recurrent-training
 export const getRecurrentRecords = () => api.get("/recurrent-training");
 export const createRecurrentRecord = (payload) => api.post("/recurrent-training", payload);
 export const updateRecurrentRecord = (id, payload) => api.put(`/recurrent-training/${id}`, payload);
