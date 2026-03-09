@@ -31,9 +31,8 @@ if (process.env.NODE_ENV === "production") {
           imgSrc: ["'self'", "data:"],
           connectSrc: [
             "'self'",
-            "http://10.0.68.158:5000",
+            "https://safetyoffice-yqn3.vercel.app", // ✅ Added Production Frontend
             "http://localhost:5000",
-            `ws://10.0.68.158:${process.env.PORT || 5000}`,
           ],
         },
       },
@@ -54,12 +53,11 @@ const corsOptions = {
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:5000",
-      "http://10.0.68.158:5000",
-      "http://10.0.68.158:5173",
+      "https://safetyoffice-yqn3.vercel.app", // ✅ Added Vercel Production URL
     ];
 
-    const isLocalNetwork =
-      /^http:\/\/(10|172)\./.test(origin) || origin.includes("localhost");
+    // Regular expression to allow local network IPs and localhost
+    const isLocalNetwork = /^http:\/\/(10|172|192)\./.test(origin) || origin.includes("localhost");
 
     if (allowedOrigins.includes(origin) || isLocalNetwork) {
       callback(null, true);
@@ -100,7 +98,6 @@ app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/schedules", require("./routes/scheduleRoutes"));
 app.use("/api/admin/audit", require("./routes/auditRoutes"));
 app.use("/api/fdm", require("./routes/fdmRoutes"));
-
 app.use("/api/employees", require("./routes/employee.routes"));
 app.use("/api/trainings", require("./routes/training.routes"));
 app.use("/api/career", require("./routes/careerDevelopment.routes"));
@@ -114,15 +111,15 @@ app.use("/api/talents", require("./routes/talentRoutes"));
     6️⃣ Serve React Frontend (Production)
 ================================ */
 if (process.env.NODE_ENV === "production") {
-  const distPath = path.join(__dirname, "../front/dist");
+  // Use absolute path for safety in different environments
+  const distPath = path.resolve(__dirname, "../front/dist");
   app.use(express.static(distPath));
 
-  // ✅ Use regex literal /.*/ for catch‑all
   app.get(/.*/, (req, res) => {
     if (req.originalUrl.startsWith("/api")) {
       return res.status(404).json({ success: false, message: "API route not found" });
     }
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }
 
@@ -149,8 +146,9 @@ mongoose
   .then(() => {
     console.log("✅ CLOUD RADAR CONNECTED: MongoDB Atlas Link Established");
 
+    // Listen on 0.0.0.0 to accept external connections if not on Vercel
     server = app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 FLTOPS OMS Live on LAN: http://10.0.68.158:${PORT}`);
+      console.log(`🚀 FLTOPS OMS Live on Port: ${PORT}`);
       console.log(`📡 Production Mode: ${process.env.NODE_ENV === "production" ? "YES" : "NO"}`);
     });
   })
@@ -165,9 +163,7 @@ mongoose
 const shutdown = async () => {
   console.log("🛑 Shutting down gracefully...");
   if (server) {
-    server.close(() => {
-      console.log("HTTP server closed.");
-    });
+    server.close(() => console.log("HTTP server closed."));
   }
   await mongoose.connection.close(false);
   console.log("MongoDB connection closed.");
