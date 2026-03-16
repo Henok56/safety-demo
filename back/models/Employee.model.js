@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema({
+  regNo: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   userAccount: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Links back to User
-    required: true,
-    unique: true // One User → One Employee profile
+    ref: "User",
+    unique: true,
+    sparse: true
   },
   costCenter: String,
   currentPosition: String,

@@ -1,187 +1,166 @@
 const Schedule = require("../models/Schedule");
+const User = require("../models/User");
+const { sendScheduleEmail } = require("../emailrelated/mailer");
 
-// ---------------- Helper: Log changes ----------------
+const ALLOWED_ROLES = ["superadmin", "manager", "scheduler", "team_leader"];
+
+// Helper: log changes
 const logChange = (doc, action, user, changes = {}) => {
   if (!doc.changeHistory) doc.changeHistory = [];
-  
   doc.changeHistory.push({
-    action, // CREATE | UPDATE | DELETE
-    changedBy: user?.userid || "Unknown Admin",
+    action,
+    changedBy: user?.userid || "Unknown",
     changedAt: new Date(),
     changes,
   });
 };
 
-// Roles allowed to view and manage schedules
-const ALLOWED_SCHEDULE_ROLES = ["superadmin", "manager", "scheduler", "team_leader"];
-
-// ================= PUBLIC =================
-exports.getPublicSchedules = async (req, res) => {
+// Helper: notify assigned user
+const notifyAssignee = async (schedule, action = "assigned") => {
   try {
-    const schedules = await Schedule.find().sort({ duedate: 1 });
-    res.json({
-      success: true,
-      data: schedules,
-      message: "Public schedules fetched successfully",
+    if (!schedule.assignedTo || schedule.assignedTo === "Unassigned") return;
+
+    // Lookup by userid or email
+    let user = await User.findOne({ userid: schedule.assignedTo });
+    if (!user) user = await User.findOne({ email: schedule.assignedTo });
+    if (!user) return;
+
+    await sendScheduleEmail({
+      toEmail: user.email,
+      employeeName: `${user.firstname} ${user.lastname}`,
+      schedule: {
+        date: new Date(schedule.duedate).toDateString(),
+        shift: schedule.activity,
+        location: schedule.notes,
+      },
     });
+
+    console.log(`📧 Schedule email [${action}] sent to ${user.email}`);
   } catch (err) {
-    console.error("Fetch public schedules error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch schedules" });
+    console.error("⚠️ Email failed:", err.message);
   }
 };
 
-// ================= STAFF / MANAGEMENT =================
+// GET public schedules (no auth required)
+exports.getPublicSchedules = async (req, res) => {
+  try {
+    const schedules = await Schedule.find({ status: "Published" })
+      .select("activity duedate assignedTo notes")
+      .sort({ duedate: 1 });
 
-// GET all schedules
+    res.json({ success: true, data: schedules });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch public schedules" });
+  }
+};
+
+// GET schedules
 exports.getSchedules = async (req, res) => {
   try {
-    if (!ALLOWED_SCHEDULE_ROLES.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden: Insufficient permissions" });
-    }
+    if (!ALLOWED_ROLES.includes(req.user.role))
+      return res.status(403).json({ message: "Forbidden" });
 
-    const { from, to } = req.query;
-    const query = {};
+    const schedules = await Schedule.find()
+      .populate("assignedTo", "firstname lastname email")
+      .sort({ duedate: 1 });
 
-    if (from || to) query.duedate = {};
-    if (from) query.duedate.$gte = new Date(from);
-    if (to) query.duedate.$lte = new Date(to);
-
-    const schedules = await Schedule.find(query).sort({ duedate: 1 });
-
-    res.json({
-      success: true,
-      data: schedules,
-      message: "Staff schedules retrieved successfully",
-    });
+    res.json({ success: true, data: schedules });
   } catch (err) {
-    console.error("Fetch schedules error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch schedules" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch schedules" });
   }
 };
 
 // CREATE schedule
 exports.createSchedule = async (req, res) => {
   try {
-    if (!ALLOWED_SCHEDULE_ROLES.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden: Access denied" });
-    }
+    if (!ALLOWED_ROLES.includes(req.user.role))
+      return res.status(403).json({ message: "Forbidden" });
 
-    const { activity, description, startdate, duedate, month, assignedTo, status, notes, comments } = req.body;
-    
-    // Normalize field names
-    const finalActivity = activity || description;
-    const finalNotes = notes || comments;
-    const finalDueDate = duedate || month;
+    const { activity, startdate, duedate, assignedTo, notes, status } = req.body;
 
-    if (!finalActivity || !startdate || !finalDueDate) {
-      return res.status(400).json({ success: false, message: "Missing required fields (Activity, Start Date, Due Date)." });
-    }
+    if (!activity || !startdate || !duedate)
+      return res.status(400).json({ message: "Missing required fields" });
 
     const schedule = new Schedule({
-      activity: finalActivity,
-      startdate: new Date(startdate),
-      duedate: new Date(finalDueDate),
+      activity,
+      startdate,
+      duedate,
       assignedTo: assignedTo || "Unassigned",
       status: status || "Pending",
-      notes: finalNotes || "Follow schedule as per assigned dates",
+      notes: notes || "Follow schedule as per assigned dates",
       createdBy: req.user.userid,
     });
 
-    logChange(schedule, "CREATE", req.user, {
-      activity: { new: schedule.activity },
-      status: { new: schedule.status },
-    });
+    logChange(schedule, "CREATE", req.user, { activity, status, assignedTo });
 
     const saved = await schedule.save();
 
-    res.status(201).json({
-      success: true,
-      data: saved,
-      message: "Schedule created and logged successfully",
-    });
+    // Notify the user asynchronously
+    setImmediate(() => notifyAssignee(saved));
+
+    res.status(201).json({ success: true, data: saved });
   } catch (err) {
-    console.error("Create schedule error:", err);
-    res.status(500).json({ success: false, message: err.message || "Failed to create schedule" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to create schedule" });
   }
 };
 
 // UPDATE schedule
 exports.updateSchedule = async (req, res) => {
   try {
-    if (!ALLOWED_SCHEDULE_ROLES.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden: Access denied" });
-    }
+    if (!ALLOWED_ROLES.includes(req.user.role))
+      return res.status(403).json({ message: "Forbidden" });
 
     const schedule = await Schedule.findById(req.params.id);
-    if (!schedule) return res.status(404).json({ success: false, message: "Schedule not found" });
+    if (!schedule) return res.status(404).json({ message: "Schedule not found" });
 
     const changes = {};
-    const updatableFields = ["activity", "description", "status", "assignedTo", "startdate", "duedate", "month", "notes", "comments"];
+    const updatableFields = ["activity", "status", "assignedTo", "startdate", "duedate", "notes"];
 
     updatableFields.forEach((field) => {
-      let incomingValue = req.body[field];
-      if (incomingValue === undefined) return;
-
-      // Map alias fields to Schema fields
-      let schemaField = field;
-      if (field === "description") schemaField = "activity";
-      if (field === "comments") schemaField = "notes";
-      if (field === "month") schemaField = "duedate";
-
-      let newValue = incomingValue;
-      if (schemaField.includes("date") || schemaField === "duedate") {
-        newValue = incomingValue ? new Date(incomingValue) : null;
-      }
-
-      // Comparison for Audit Log
-      const oldValueStr = schedule[schemaField] != null ? schedule[schemaField].toString() : "";
-      const newValueStr = newValue != null ? newValue.toString() : "";
-
-      if (oldValueStr !== newValueStr) {
-        changes[schemaField] = { old: schedule[schemaField], new: newValue };
-        schedule[schemaField] = newValue;
+      if (req.body[field] === undefined) return;
+      const oldVal = schedule[field];
+      const newVal = req.body[field];
+      if (String(oldVal) !== String(newVal)) {
+        schedule[field] = newVal;
+        changes[field] = { old: oldVal, new: newVal };
       }
     });
 
-    if (Object.keys(changes).length > 0) {
-      logChange(schedule, "UPDATE", req.user, changes);
-      schedule.markModified('changeHistory');
-    }
+    if (Object.keys(changes).length > 0) logChange(schedule, "UPDATE", req.user, changes);
 
     const updated = await schedule.save();
 
-    res.json({
-      success: true,
-      data: updated,
-      message: "Schedule updated and audit log synchronized",
-    });
+    // Notify only if reassigned or status changed
+    if (changes.assignedTo || changes.status) setImmediate(() => notifyAssignee(updated));
+
+    res.json({ success: true, data: updated });
   } catch (err) {
-    console.error("Update schedule error:", err);
-    res.status(500).json({ success: false, message: "Failed to update schedule" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to update schedule" });
   }
 };
 
 // DELETE schedule
 exports.deleteSchedule = async (req, res) => {
   try {
-    // 🚩 SPECIFIC RESTRICTION: Scheduler is excluded from deletion
-    const deleteAuthorized = ["superadmin", "manager", "team_leader"].includes(req.user.role);
-    
-    if (!deleteAuthorized) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Forbidden: Schedulers cannot delete records. Please contact a Team Leader or Manager." 
+    const allowedDeleteRoles = ["superadmin", "manager", "team_leader"];
+    if (!allowedDeleteRoles.includes(req.user.role))
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You cannot delete schedules",
       });
-    }
 
     const schedule = await Schedule.findById(req.params.id);
-    if (!schedule) return res.status(404).json({ success: false, message: "Schedule not found" });
+    if (!schedule) return res.status(404).json({ message: "Schedule not found" });
 
     await Schedule.findByIdAndDelete(req.params.id);
 
-    res.json({ success: true, message: "Schedule record purged from database" });
+    res.json({ success: true, message: "Schedule deleted successfully" });
   } catch (err) {
-    console.error("Delete schedule error:", err);
-    res.status(500).json({ success: false, message: "Failed to delete schedule" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete schedule" });
   }
 };

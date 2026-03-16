@@ -1,50 +1,56 @@
 const RecurrentTraining = require("../models/RecurrentTraining.model");
+const { sendTrainingEmail } = require("../emailrelated/mailer");
 
-// ===========================
-// CREATE
-// ===========================
 exports.createRecurrentTraining = async (req, res) => {
   try {
-    // 🚩 DATA SANITIZATION & AUDIT:
     const data = {
       ...req.body,
       lastPromotionDate: req.body.lastPromotionDate || null,
       nextPromotionDate: req.body.nextPromotionDate || null,
-      // Track the person logging the training
       createdBy: req.user.userid,
       lastModifiedBy: req.user.userid
     };
 
     const training = new RecurrentTraining(data);
     await training.save();
-    
-    // Populate including costCenter for compliance reports
-    await training.populate("employee", "firstName lastName regNo costCenter");
-    
+
+    // ✅ Deep populate with email
+    await training.populate([
+      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
+      { path: "trainingType", select: "topic" }
+    ]);
+
+    // ✅ Send email notification
+    const user = training.employee?.userAccount;
+    if (user?.email) {
+      await sendTrainingEmail({
+        toEmail: user.email,
+        employeeName: `${user.firstname} ${user.lastname}`,
+        trainingType: "Recurrent Training",
+        details: {
+          "Training Topic": training.trainingType?.topic || "N/A",
+          "Tentative Schedule": training.tentativeScheduleDate
+            ? new Date(training.tentativeScheduleDate).toDateString() : "TBD",
+          "Category": training.category || "Recurrent Training",
+          "Department": training.department || "N/A"
+        }
+      });
+    }
+
     res.status(201).json({ success: true, data: training });
   } catch (err) {
     console.error("❌ CREATE ERROR:", err.message);
-    res.status(400).json({ 
-      success: false, 
-      message: "Validation Failed", 
-      error: err.message 
-    });
+    res.status(400).json({ success: false, message: "Validation Failed", error: err.message });
   }
 };
 
-// ===========================
-// GET ALL
-// ===========================
 exports.getRecurrentTrainings = async (req, res) => {
   try {
     const trainings = await RecurrentTraining.find()
-      .populate("trainingType", "topic") // ✅ THIS IS KEY: Fetches the 'topic' field
+      .populate("trainingType", "topic")
       .populate({
         path: "employee",
-        populate: {
-          path: "userAccount",
-          select: "firstname lastname userid"
-        }
+        populate: { path: "userAccount", select: "firstname lastname userid email" }
       })
       .sort({ createdAt: -1 });
 
@@ -53,64 +59,76 @@ exports.getRecurrentTrainings = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-// ===========================
-// GET BY EMPLOYEE ID
-// ===========================
+
 exports.getRecurrentTrainingByEmployee = async (req, res) => {
   try {
     const trainings = await RecurrentTraining.find({ employee: req.params.employeeId })
-      .populate("employee", "firstName lastName regNo costCenter");
-      
+      .populate("trainingType", "topic")
+      .populate({
+        path: "employee",
+        populate: { path: "userAccount", select: "firstname lastname userid email" }
+      });
+
     res.json({ success: true, data: trainings });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
-// ===========================
-// UPDATE
-// ===========================
 exports.updateRecurrentTraining = async (req, res) => {
   try {
     const updateData = {
       ...req.body,
       lastPromotionDate: req.body.lastPromotionDate || null,
       nextPromotionDate: req.body.nextPromotionDate || null,
-      // Track the person updating the record
       lastModifiedBy: req.user.userid
     };
 
     const training = await RecurrentTraining.findByIdAndUpdate(
-      req.params.id, 
-      updateData, 
+      req.params.id,
+      updateData,
       { new: true, runValidators: true }
-    ).populate("employee", "firstName lastName regNo costCenter");
+    ).populate([
+      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
+      { path: "trainingType", select: "topic" }
+    ]);
 
     if (!training) return res.status(404).json({ success: false, message: "Record not found" });
+
+    // ✅ Notify on status change
+    if (req.body.remark) {
+      const user = training.employee?.userAccount;
+      if (user?.email) {
+        await sendTrainingEmail({
+          toEmail: user.email,
+          employeeName: `${user.firstname} ${user.lastname}`,
+          trainingType: "Recurrent Training",
+          details: {
+            "Training Topic": training.trainingType?.topic || "N/A",
+            "Status Updated To": training.remark,
+            "Tentative Schedule": training.tentativeScheduleDate
+              ? new Date(training.tentativeScheduleDate).toDateString() : "TBD"
+          }
+        });
+      }
+    }
+
     res.json({ success: true, data: training });
   } catch (err) {
     res.status(400).json({ success: false, message: "Update Failed", error: err.message });
   }
 };
 
-// ===========================
-// DELETE
-// ===========================
 exports.deleteRecurrentTraining = async (req, res) => {
   try {
-    // 🚩 UPDATED PERMISSION: Included 'team_leader'
     const authorizedRoles = ["superadmin", "manager", "team_leader"];
-    
     if (!authorizedRoles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Access Denied: Leadership role required to delete training records." 
-      });
+      return res.status(403).json({ success: false, message: "Access Denied: Leadership role required to delete training records." });
     }
 
     const training = await RecurrentTraining.findByIdAndDelete(req.params.id);
     if (!training) return res.status(404).json({ success: false, message: "Record not found" });
-    
+
     res.json({ success: true, message: "Training record deleted successfully" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Delete Failed" });

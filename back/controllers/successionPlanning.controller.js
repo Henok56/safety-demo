@@ -1,18 +1,12 @@
 const Succession = require("../models/SuccessionPlanning.model");
+const { sendTrainingEmail } = require("../emailrelated/mailer");
 
-// ===========================
-// GET ALL
-// ===========================
 exports.getSuccessions = async (req, res) => {
   try {
-    // Deep populate: Succession -> Employee -> UserAccount
     const data = await Succession.find()
       .populate({
         path: "employee",
-        populate: {
-          path: "userAccount",
-          select: "firstname lastname userid" // Matches your User schema lowercase fields
-        }
+        populate: { path: "userAccount", select: "firstname lastname userid email" }
       })
       .sort({ createdAt: -1 });
 
@@ -23,18 +17,12 @@ exports.getSuccessions = async (req, res) => {
   }
 };
 
-// ===========================
-// GET SINGLE RECORD
-// ===========================
 exports.getSuccession = async (req, res) => {
   try {
     const data = await Succession.findById(req.params.id)
       .populate({
         path: "employee",
-        populate: {
-          path: "userAccount",
-          select: "firstname lastname userid"
-        }
+        populate: { path: "userAccount", select: "firstname lastname userid email" }
       });
 
     if (!data) return res.status(404).json({ success: false, message: "Succession record not found" });
@@ -44,9 +32,6 @@ exports.getSuccession = async (req, res) => {
   }
 };
 
-// ===========================
-// CREATE
-// ===========================
 exports.createSuccession = async (req, res) => {
   try {
     const data = {
@@ -57,15 +42,30 @@ exports.createSuccession = async (req, res) => {
 
     const record = new Succession(data);
     await record.save();
-    
-    // Deep populate after save so frontend gets the names immediately
+
+    // ✅ Added email to select
     await record.populate({
       path: "employee",
-      populate: {
-        path: "userAccount",
-        select: "firstname lastname userid"
-      }
+      populate: { path: "userAccount", select: "firstname lastname userid email" }
     });
+
+    // ✅ Send email notification
+    const user = record.employee?.userAccount;
+    if (user?.email) {
+      await sendTrainingEmail({
+        toEmail: user.email,
+        employeeName: `${user.firstname} ${user.lastname}`,
+        trainingType: "Succession Planning",
+        details: {
+          "Current Position": record.currentPosition,
+          "Groomed For Position": record.groomedForPosition,
+          "Department": record.department || "N/A",
+          "Acting Assignment": record.actingAssignment?.detail || "N/A",
+          "Scheduled Month": record.actingAssignment?.scheduleMonth
+            ? new Date(record.actingAssignment.scheduleMonth).toDateString() : "TBD"
+        }
+      });
+    }
 
     res.status(201).json({ success: true, data: record });
   } catch (err) {
@@ -74,9 +74,6 @@ exports.createSuccession = async (req, res) => {
   }
 };
 
-// ===========================
-// UPDATE
-// ===========================
 exports.updateSuccession = async (req, res) => {
   try {
     const updateData = {
@@ -90,31 +87,39 @@ exports.updateSuccession = async (req, res) => {
       { new: true, runValidators: true }
     ).populate({
       path: "employee",
-      populate: {
-        path: "userAccount",
-        select: "firstname lastname userid"
-      }
+      populate: { path: "userAccount", select: "firstname lastname userid email" }
     });
 
     if (!record) return res.status(404).json({ success: false, message: "Not found" });
+
+    // ✅ Notify on status change
+    if (req.body.remark) {
+      const user = record.employee?.userAccount;
+      if (user?.email) {
+        await sendTrainingEmail({
+          toEmail: user.email,
+          employeeName: `${user.firstname} ${user.lastname}`,
+          trainingType: "Succession Planning",
+          details: {
+            "Current Position": record.currentPosition,
+            "Groomed For Position": record.groomedForPosition,
+            "Status Updated To": record.remark
+          }
+        });
+      }
+    }
+
     res.json({ success: true, data: record });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }
 };
 
-// ===========================
-// DELETE
-// ===========================
 exports.deleteSuccession = async (req, res) => {
   try {
     const authorizedRoles = ["superadmin", "manager", "team_leader"];
-    
     if (!authorizedRoles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Forbidden: You do not have permission to delete succession plans." 
-      });
+      return res.status(403).json({ success: false, message: "Forbidden: You do not have permission to delete succession plans." });
     }
 
     const record = await Succession.findByIdAndDelete(req.params.id);

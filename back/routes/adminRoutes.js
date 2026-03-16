@@ -20,7 +20,7 @@ const {
 } = require("../controllers/auditController");
 
 // --- User Management ---
-router.get("/users", authMiddleware, verifyAdminMiddleware(["superadmin", "manager"]), getAllUsers);
+router.get("/users", authMiddleware, verifyAdminMiddleware(["superadmin", "manager", "team_leader", "scheduler"]), getAllUsers);
 router.put("/users/:id/role", authMiddleware, verifyAdminMiddleware(["superadmin"]), updateUserRole);
 router.post("/make-admin", authMiddleware, verifyAdminMiddleware(["superadmin"]), makeAdmin);
 router.delete("/users/:username", authMiddleware, verifyAdminMiddleware(["superadmin"]), deleteUser);

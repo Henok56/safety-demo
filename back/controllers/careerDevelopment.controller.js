@@ -1,4 +1,5 @@
 const CareerDevelopment = require("../models/CareerDevelopment.model");
+const { sendTrainingEmail } = require("../emailrelated/mailer");
 
 // ===========================
 // CREATE
@@ -14,26 +15,35 @@ exports.createCareer = async (req, res) => {
     const career = new CareerDevelopment(careerData);
     const savedCareer = await career.save();
 
-    // 🚩 NESTED POPULATION: Pull userAccount data through the employee ref
+    // ✅ Added email to select
     await savedCareer.populate({
       path: "employee",
       populate: {
         path: "userAccount",
-        select: "firstName lastName userid"
+        select: "firstname lastname userid email"
       }
     });
 
-    res.status(201).json({ 
-      success: true, 
-      data: savedCareer 
-    });
+    // ✅ Send email notification
+    const user = savedCareer.employee?.userAccount;
+    if (user?.email) {
+      await sendTrainingEmail({
+        toEmail: user.email,
+        employeeName: `${user.firstname} ${user.lastname}`,
+        trainingType: "Career Development",
+        details: {
+          "Topic": savedCareer.topic,
+          "Tentative Schedule": savedCareer.tentativeScheduleMonth || "TBD",
+          "Status": savedCareer.remark || "Pending",
+          "Department": savedCareer.costCenter || "N/A"
+        }
+      });
+    }
+
+    res.status(201).json({ success: true, data: savedCareer });
   } catch (err) {
     console.error("❌ Career Save Error:", err.message);
-    res.status(400).json({ 
-      success: false, 
-      message: "Database Save Failed", 
-      error: err.message 
-    });
+    res.status(400).json({ success: false, message: "Database Save Failed", error: err.message });
   }
 };
 
@@ -42,22 +52,17 @@ exports.createCareer = async (req, res) => {
 // ===========================
 exports.getCareers = async (req, res) => {
   try {
-    // 🚩 NESTED POPULATION: Essential for the table to show names
     const careers = await CareerDevelopment.find()
       .populate({
         path: "employee",
         populate: {
           path: "userAccount",
-          select: "firstname lastname userid"
+          select: "firstname lastname userid email"
         }
-      }) 
+      })
       .sort({ createdAt: -1 });
 
-    res.json({ 
-      success: true, 
-      count: careers.length,
-      data: careers 
-    });
+    res.json({ success: true, count: careers.length, data: careers });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
@@ -73,10 +78,10 @@ exports.getCareer = async (req, res) => {
         path: "employee",
         populate: {
           path: "userAccount",
-          select: "firstname lastname userid"
+          select: "firstname lastname userid email"
         }
       });
-      
+
     if (!career) return res.status(404).json({ success: false, message: "Career not found" });
     res.json({ success: true, data: career });
   } catch (err) {
@@ -94,25 +99,46 @@ exports.updateCareer = async (req, res) => {
       lastModifiedBy: req.user.userid
     };
 
-    const career = await CareerDevelopment.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-      runValidators: true
-    }).populate({
+    const career = await CareerDevelopment.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate({
       path: "employee",
       populate: {
         path: "userAccount",
-       select: "firstname lastname userid"
+        select: "firstname lastname userid email"
       }
     });
 
     if (!career) return res.status(404).json({ success: false, message: "Career not found" });
+
+    // ✅ Notify if remark/status changed
+    if (req.body.remark && req.body.remark !== "pending") {
+      const user = career.employee?.userAccount;
+      if (user?.email) {
+        await sendTrainingEmail({
+          toEmail: user.email,
+          employeeName: `${user.firstname} ${user.lastname}`,
+          trainingType: "Career Development",
+          details: {
+            "Topic": career.topic,
+            "Status Updated To": career.remark,
+            "Tentative Schedule": career.tentativeScheduleMonth || "TBD"
+          }
+        });
+      }
+    }
+
     res.json({ success: true, data: career });
   } catch (err) {
     res.status(400).json({ success: false, message: "Invalid Data" });
   }
 };
 
-// DELETE remains the same as it doesn't require population
+// ===========================
+// DELETE
+// ===========================
 exports.deleteCareer = async (req, res) => {
   try {
     const authorizedRoles = ["superadmin", "manager", "team_leader"];
@@ -122,7 +148,7 @@ exports.deleteCareer = async (req, res) => {
 
     const career = await CareerDevelopment.findByIdAndDelete(req.params.id);
     if (!career) return res.status(404).json({ success: false, message: "Career record not found" });
-    
+
     res.json({ success: true, message: "Career track deleted successfully" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error" });

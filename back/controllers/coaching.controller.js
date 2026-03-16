@@ -1,20 +1,14 @@
 const Coaching = require("../models/Coaching.model");
+const { sendScheduleEmail } = require("../emailrelated/mailer");
 
-/**
- * @desc    Get all coaching records with deep nested population
- * @route   GET /api/coaching
- */
 exports.getCoachings = async (req, res) => {
   try {
     const data = await Coaching.find()
       .populate({
         path: "employee",
-        populate: {
-          path: "userAccount",
-          select: "firstname lastname userid"
-        }
+        populate: { path: "userAccount", select: "firstname lastname userid email" }
       })
-      .populate("trainingType", "topic category") // Crucial for dashboard display
+      .populate("trainingType", "topic category")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: data.length, data });
@@ -24,17 +18,12 @@ exports.getCoachings = async (req, res) => {
   }
 };
 
-/**
- * @desc    Create new coaching record
- * @route   POST /api/coaching
- */
 exports.createCoaching = async (req, res) => {
   try {
-    // 🚩 ALIGNMENT: Matching schema keys exactly (PascalCase for Start/End)
     const sanitizedData = {
-      employee: req.body.employee,             // Required ObjectId
-      trainingType: req.body.trainingType,     // Required ObjectId
-      proposedPLLevel: req.body.proposedPLLevel, // Required String
+      employee: req.body.employee,
+      trainingType: req.body.trainingType,
+      proposedPLLevel: req.body.proposedPLLevel,
       coachingScheduleStartMonth: req.body.coachingScheduleStartMonth || null,
       coachingScheduleEndMonth: req.body.coachingScheduleEndMonth || null,
       remark: req.body.remark || "pending",
@@ -47,17 +36,32 @@ exports.createCoaching = async (req, res) => {
     const record = new Coaching(sanitizedData);
     await record.save();
 
-    // Deep populate for immediate frontend feedback
+    // ✅ Added email to select
     await record.populate([
-      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid" } },
+      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
       { path: "trainingType", select: "topic" }
     ]);
 
-    res.status(201).json({
-      success: true,
-      message: "Coaching record created successfully",
-      data: record
-    });
+    // ✅ Send email notification
+    const user = record.employee?.userAccount;
+    if (user?.email) {
+      await sendTrainingEmail({
+        toEmail: user.email,
+        employeeName: `${user.firstname} ${user.lastname}`,
+        trainingType: "Coaching",
+        details: {
+          "Training Topic": record.trainingType?.topic || "N/A",
+          "Proposed PL Level": record.proposedPLLevel,
+          "Start Month": record.coachingScheduleStartMonth
+            ? new Date(record.coachingScheduleStartMonth).toDateString() : "TBD",
+          "End Month": record.coachingScheduleEndMonth
+            ? new Date(record.coachingScheduleEndMonth).toDateString() : "TBD",
+          "Department": record.department || "N/A"
+        }
+      });
+    }
+
+    res.status(201).json({ success: true, message: "Coaching record created successfully", data: record });
   } catch (err) {
     console.error("❌ Validation Failed:", err.message);
     res.status(400).json({
@@ -68,15 +72,10 @@ exports.createCoaching = async (req, res) => {
   }
 };
 
-/**
- * @desc    Update an existing coaching record
- * @route   PUT /api/coaching/:id
- */
 exports.updateCoaching = async (req, res) => {
   try {
     const updatedData = {
       ...req.body,
-      // Ensure we use the schema's PascalCase naming
       coachingScheduleStartMonth: req.body.coachingScheduleStartMonth || null,
       coachingScheduleEndMonth: req.body.coachingScheduleEndMonth || null,
       lastModifiedBy: req.user.username
@@ -87,11 +86,28 @@ exports.updateCoaching = async (req, res) => {
       updatedData,
       { new: true, runValidators: true }
     ).populate([
-      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid" } },
+      { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
       { path: "trainingType", select: "topic" }
     ]);
 
     if (!record) return res.status(404).json({ success: false, message: "Record not found" });
+
+    // ✅ Notify on status change
+    if (req.body.remark) {
+      const user = record.employee?.userAccount;
+      if (user?.email) {
+        await sendTrainingEmail({
+          toEmail: user.email,
+          employeeName: `${user.firstname} ${user.lastname}`,
+          trainingType: "Coaching",
+          details: {
+            "Training Topic": record.trainingType?.topic || "N/A",
+            "Status Updated To": record.remark,
+            "Proposed PL Level": record.proposedPLLevel
+          }
+        });
+      }
+    }
 
     res.status(200).json({ success: true, message: "Coaching record updated", data: record });
   } catch (err) {
@@ -99,10 +115,6 @@ exports.updateCoaching = async (req, res) => {
   }
 };
 
-/**
- * @desc    Delete a coaching record
- * @route   DELETE /api/coaching/:id
- */
 exports.deleteCoaching = async (req, res) => {
   try {
     const authorizedRoles = ["superadmin", "manager", "team_leader"];
