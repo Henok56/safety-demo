@@ -1,6 +1,7 @@
 [build]
-  publish = "front/dist"
-  command = "cd front && npm install && npm run build"
+  base = "front"
+  command = "npm install && npm run build"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
