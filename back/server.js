@@ -78,25 +78,15 @@ app.use(limiter);
 // ===============================
 // CORS CONFIGURATION (FULLY FIXED)
 // ===============================
+// Update allowedOrigins to include your Netlify URL
 const allowedOrigins = [
-  // Local development
   "http://localhost:3000",
   "http://localhost:5173",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:5173",
-  
-  // Netlify deployments
-  "https://startling-pithivier-8781be.netlify.app",
-  "https://safety-demo.netlify.app",
-  "https://safetydemo.netlify.app",
-  
-  // Vercel deployments
-  "https://safety-demo.vercel.app",
-  "https://safety-frontend.vercel.app",
-  
-  // Custom domain (add yours if any)
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+  "https://startling-pithivier-8781be.netlify.app",  // Your Netlify URL
+  "https://*.netlify.app",  // Allow all Netlify subdomains
+];
 
 // CORS middleware
 app.use(
