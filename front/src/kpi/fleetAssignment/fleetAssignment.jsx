@@ -7,7 +7,7 @@ import {
   getAllEmployees,
 } from "../../api/fleetassignmentApi";
 
-import "../../styles/FleetAssignment.css";
+import "../../styles/fleetAssignment.css";
 
 export default function FleetAssignment() {
   const [tab, setTab] = useState("list");
