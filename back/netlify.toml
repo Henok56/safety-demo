@@ -1,0 +1,31 @@
+# ~/Desktop/safetydemo/netlify.toml
+
+[build]
+  base = "front"
+  command = "npm install && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Redirect all API calls to your backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://safety-backend.vercel.app/api/:splat"
+  status = 200
+  force = true
+
+# Handle client-side routing (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and CORS
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
