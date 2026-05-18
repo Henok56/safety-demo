@@ -1,0 +1,118 @@
+/* =========================
+   Admin Sidebar Navigation
+   Matches AdminUsers Header (#111827)
+========================= */
+.admin-nav {
+  width: 260px;
+  background-color: #111827;
+  /* Dark Charcoal */
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  color: #ffffff;
+  /* Sticky behavior handled by parent flex container usually, 
+     but explicit sticky is good for long content */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid #374151;
+}
+
+/* Header / Title */
+.admin-nav-header {
+  margin-bottom: 24px;
+}
+
+.home-btn {
+  width: 100%;
+  text-align: left;
+  background-color: #374151;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.home-btn:hover {
+  background-color: #4b5563;
+}
+
+/* Navigation Links Container */
+.admin-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Individual Link */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #9ca3af;
+  /* Light gray text */
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #1f2937;
+  /* Slightly lighter dark */
+  color: #ffffff;
+}
+
+.nav-link.active {
+  background-color: #2563eb;
+  /* Primary Blue from AdminUsers */
+  color: #ffffff;
+}
+
+.link-text {
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-nav {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+  }
+
+  .admin-nav-links {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .home-btn {
+    width: auto;
+    margin-bottom: 0;
+  }
+
+  .link-text {
+    display: none;
+    /* Hide text on mobile to save space */
+  }
+}

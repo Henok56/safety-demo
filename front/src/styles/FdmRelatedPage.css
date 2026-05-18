@@ -1,0 +1,197 @@
+/* Sensitive Data Notice */
+.sensitive-data-notice {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe8cc 100%);
+  border-left: 4px solid #f59e0b;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(245, 158, 11, 0.15);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.notice-icon {
+  color: #f59e0b;
+  font-size: 20px;
+}
+
+.notice-header h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.notice-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #92400e;
+  padding: 0 8px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.notice-close:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.notice-content {
+  padding: 20px;
+}
+
+.notice-content p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: #78350f;
+}
+
+.notice-details {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.notice-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #fef3c7;
+}
+
+.notice-section:last-child {
+  border-bottom: none;
+}
+
+.notice-section svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notice-section div {
+  flex: 1;
+}
+
+.notice-section strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.notice-section span {
+  font-size: 13px;
+  color: #78350f;
+}
+
+.notice-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #fef3c7;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.notice-warning svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notice-warning p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Integration Badge */
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.integration-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Mock Data Badge */
+.mock-data-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fef3c7;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #92400e;
+  margin-bottom: 16px;
+}
+
+/* Status Box with Icon */
+.status-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.status-box svg {
+  font-size: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notice-header {
+    flex-wrap: wrap;
+  }
+  
+  .notice-header h3 {
+    width: 100%;
+    order: 1;
+  }
+  
+  .notice-close {
+    order: 2;
+  }
+  
+  .notice-section {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

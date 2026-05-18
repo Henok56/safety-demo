@@ -1,0 +1,22 @@
+.ut-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.ut-page-nav a {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #1f2937;
+  background: #fff;
+  padding: 8px 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ut-page-nav a.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}

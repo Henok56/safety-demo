@@ -1,0 +1,158 @@
+/* ============================
+   PAGE LAYOUT
+============================ */
+.schedule-list-page {
+  padding: 25px;
+  max-width: 1300px;
+  margin: auto;
+  font-family: "Inter", sans-serif;
+}
+
+.schedule-list-page h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+/* ============================
+   DATE RANGE FILTER
+============================ */
+.range-filter {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #f8fafc;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.range-filter label {
+  font-size: 14px;
+  color: #334155;
+}
+
+.range-filter input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.range-filter button {
+  background: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.range-filter button:hover {
+  background: #2563eb;
+}
+
+/* ============================
+   TABLE STYLING
+============================ */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.schedule-table thead {
+  background: #f1f5f9;
+}
+
+.schedule-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.schedule-table td {
+  padding: 12px;
+  font-size: 14px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.schedule-table tr:hover {
+  background: #f8fafc;
+}
+
+/* ============================
+   SELECT & INPUT FIELDS
+============================ */
+.schedule-table select,
+.schedule-table input[type="text"] {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.schedule-table select:disabled,
+.schedule-table input:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+/* ============================
+   DELETE BUTTON
+============================ */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+.no-access {
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ============================
+   ERROR MESSAGE
+============================ */
+.error {
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #fecaca;
+}
+
+/* ============================
+   LOADING STATE
+============================ */
+.loading {
+  font-size: 15px;
+  color: #475569;
+  margin-top: 10px;
+}

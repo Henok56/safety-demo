@@ -1,0 +1,96 @@
+.ut-timer-container {
+  padding: 20px;
+  background: #f4f6fb;
+  min-height: 100vh;
+}
+
+.form-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-box input,
+.form-box select,
+.form-box textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.form-box label {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.employee-preview {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.start-btn {
+  background: #2f6fed;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.active-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  border-left: 5px solid #2f6fed;
+}
+
+.stop-btn {
+  margin-top: 10px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.timer-log-section {
+  margin-top: 24px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.timer-log-section h3 {
+  margin: 0 0 12px;
+  color: #111827;
+}
+
+.timer-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.timer-log-table th,
+.timer-log-table td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: left;
+}
+
+.timer-log-table th {
+  background: #f9fafb;
+  font-weight: 700;
+  color: #374151;
+}

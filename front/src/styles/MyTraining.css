@@ -1,0 +1,114 @@
+/* src/styles/MyTraining.css */
+.my-training-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.roadmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.profile-hex { background: #2563eb; color: white; padding: 10px; border-radius: 10px; }
+.id-tag { margin-left: 8px; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; }
+
+.stat-card { text-align: right; border-left: 2px solid #e2e8f0; padding-left: 2rem; }
+.stat-label { color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; }
+.stat-value { font-size: 1.75rem; font-weight: 800; color: #2563eb; display: block; }
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.training-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-head {
+  padding: 1.25rem;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 12px 12px 0 0;
+}
+
+.training-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.info-main { display: flex; gap: 12px; align-items: flex-start; }
+.training-topic { font-weight: 700; color: #1e293b; margin: 0; font-size: 1rem; }
+.training-extra { font-size: 0.85rem; color: #64748b; margin: 2px 0; font-weight: 500; }
+.training-meta { display: flex; gap: 10px; margin-top: 6px; }
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.badge-pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fef3c7;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Succession Specific Styling */
+.succession-sub-grid {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #64748b;
+  background: #fafafa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border-left: 2px solid #3b82f6;
+}
+
+/* Category Colors */
+.icon-career { color: #8b5cf6; }
+.icon-leadership { color: #f59e0b; }
+.icon-coaching { color: #ec4899; }
+.icon-recurrent { color: #10b981; }
+.icon-succession { color: #3b82f6; }
+
+.loading-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; }
+.spinner { animation: spin 1s linear infinite; color: #2563eb; margin-bottom: 1rem; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

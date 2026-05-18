@@ -1,0 +1,75 @@
+/* Navigation Container */
+.home-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 0.75rem 2rem;
+    border-bottom: 2px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Left Side Navigation */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* The Branding Link (Admin Home) */
+.talent-link {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e40af; /* Deep Aviation Blue */
+    text-decoration: none;
+    letter-spacing: -0.025em;
+    padding-right: 1.5rem;
+    border-right: 2px solid #f1f5f9;
+}
+
+.talent-link:hover {
+    color: #1d4ed8;
+}
+
+/* Individual Navigation Buttons */
+.nav-btn {
+    text-decoration: none;
+    color: #64748b; /* Slate Gray */
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-btn:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+/* Active State - When the user is on the specific page */
+.nav-btn.active {
+    background-color: #1e293b; /* Dark Slate */
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Right Side (Status/User Info) */
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.system-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #16a34a; /* Success Green */
+    background-color: #f0fdf4;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid #dcfce7;
+    text-transform: uppercase;
+}

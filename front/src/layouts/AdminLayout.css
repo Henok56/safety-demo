@@ -1,0 +1,21 @@
+/* =========================
+   Admin Layout Wrapper
+   Prevents layout shifts
+========================= */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f9fafb;
+    /* Light gray background for entire admin area */
+}
+
+/* 
+   Content Area
+   Takes up remaining width next to sidebar
+*/
+.admin-content {
+    flex: 1;
+    /* Ensure content doesn't cause horizontal scroll independently if not needed */
+    overflow-x: hidden;
+    /* Removing padding here allows pages to control their own padding */
+}

@@ -1,0 +1,74 @@
+.ut-wrapper {
+  padding: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.ut-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.ut-nav button {
+  padding: 10px 15px;
+  border: none;
+  background: #343a40;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.ut-nav button:hover {
+  background: #495057;
+}
+
+.ut-content {
+  margin-top: 10px;
+}
+/* Add to your existing CSS */
+.ut-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1976d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.profile-status-bar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.employee-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.ut-nav button.active {
+  background: #1976d2;
+  color: white;
+}
