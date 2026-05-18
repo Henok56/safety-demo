@@ -21,6 +21,13 @@ const app = express();
 // ===============================
 // ENV CHECK
 // ===============================
+console.log("\n📋 Environment Configuration:");
+console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`   PORT: ${process.env.PORT || 4000}`);
+console.log(`   MONGO_URI: ${process.env.MONGO_URI ? '✓ Set' : '✗ Missing'}`);
+console.log(`   JWT_SECRET: ${process.env.JWT_SECRET ? '✓ Set' : '✗ Missing'}`);
+console.log(`   ADMIN_EMAIL: ${process.env.ADMIN_EMAIL || 'Not set'}`);
+
 if (!process.env.MONGO_URI) {
   console.warn("⚠️ Missing MONGO_URI in .env file");
   console.warn("Please add: MONGO_URI=mongodb://localhost:27017/your_database");
@@ -51,13 +58,13 @@ app.use(compression());
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-// Morgan logging with different formats for production/development
+// Morgan logging
 const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
 app.use(morgan(morganFormat));
 
 app.use(mongoSanitize());
 
-// Rate limiting - more strict in production
+// Rate limiting - stricter in production
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: process.env.NODE_ENV === 'production' ? 100 : 500,
@@ -75,9 +82,9 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-  'https://safetyoffice-frontend.vercel.app',
   'https://safety-demo.vercel.app',
-  'https://safetyoffice.vercel.app',
+  'https://front-96mk8y1gu-henok56s-projects.vercel.app',
+  'https://front-j0to7fwwd-henok56s-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -86,11 +93,11 @@ app.use(
     origin: function(origin, callback) {
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
       }
-      return callback(null, true);
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -157,11 +164,14 @@ app.get("/api/health", async (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     mongodb: "unknown",
     uptime: process.uptime(),
-    memory: process.memoryUsage(),
+    memory: process.memoryUsage().rss / 1024 / 1024, // MB
   };
 
   try {
     health.mongodb = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+    if (health.mongodb === "connected") {
+      health.database = mongoose.connection.name;
+    }
   } catch (err) {
     health.mongodb = "error";
   }
@@ -187,6 +197,7 @@ app.get("/", (req, res) => {
     name: "Safety Office API",
     version: "1.0.0",
     status: "running",
+    environment: process.env.NODE_ENV,
     endpoints: {
       health: "/api/health",
       ping: "/api/ping",
@@ -213,7 +224,6 @@ app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.message);
   console.error(err.stack);
 
-  // Don't leak stack traces in production
   const errorResponse = {
     success: false,
     message: err.message || "Internal server error",
@@ -231,12 +241,12 @@ app.use((err, req, res, next) => {
 // DATABASE CONNECT
 // ===============================
 const connectDB = async () => {
-  console.log("\n🔌 Connecting to MongoDB...");
+  console.log("\n🔌 Connecting to MongoDB Atlas...");
 
   if (!process.env.MONGO_URI) {
     console.error("❌ MONGO_URI is not defined in .env file");
     console.log("\n💡 Please add to your .env file:");
-    console.log("   MONGO_URI=mongodb://localhost:27017/your_database_name");
+    console.log("   MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/database");
     process.exit(1);
   }
 
@@ -275,24 +285,17 @@ process.on('SIGTERM', shutdown);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.HOST || "0.0.0.0";
 
-// For Vercel serverless deployment
-const startServer = async () => {
-  await connectDB();
-  
-  // Only listen if not in serverless environment
-  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    app.listen(PORT, HOST, () => {
-      console.log("\n================================");
-      console.log(`🚀 Server is running!`);
-      console.log(`📍 URL: http://${HOST}:${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🕐 Started: ${new Date().toLocaleString()}`);
-      console.log("================================\n");
-    });
-  }
-};
+connectDB().then(() => {
+  app.listen(PORT, HOST, () => {
+    console.log("\n================================");
+    console.log(`🚀 Server is running!`);
+    console.log(`📍 URL: http://${HOST}:${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📧 Admin Email: ${process.env.ADMIN_EMAIL}`);
+    console.log(`🕐 Started: ${new Date().toLocaleString()}`);
+    console.log("================================\n");
+  });
+});
 
-startServer();
-
-// Export for Vercel serverless
+// Export for Vercel serverless (optional)
 module.exports = app;

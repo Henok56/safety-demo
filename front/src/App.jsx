@@ -54,7 +54,7 @@ import SmsDashboard from "./kpi/smsRelated/smsDashboard.jsx";
 import HazardList from "./kpi/smsRelated/hazardList.jsx";
 import HazardForm from "./kpi/smsRelated/hazardForm.jsx";
 import HazardDetail from "./kpi/smsRelated/hazardDetail.jsx";
-import HazardAlertBox from "./kpi/smsRelated/hazardAlertBox.jsx";
+import HazardAlertBox from "./kpi/smsRelated/hazardalertbox.jsx";
 
 /* ========= FDM ========= */
 import FdmLayout from "./layouts/FdmLayout.jsx"; 

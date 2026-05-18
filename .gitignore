@@ -22,3 +22,6 @@ back/uploads/
 uploads/
 back/Archive/
 back/uploads/
+
+# Local Netlify folder
+.netlify
