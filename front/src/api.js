@@ -3,7 +3,7 @@ import axios from "axios";
 // =======================
 // AXIOS INSTANCE (PUT IT HERE)
 // =======================
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://lohttps://safety-backend.vercel.appcalhost:4000/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
