@@ -15,3 +15,6 @@ back/.env.local
 # Vercel deployment
 vercel.json
 .vercel/
+
+.vercel
+.env*.local
