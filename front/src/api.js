@@ -1,11 +1,9 @@
 import axios from "axios";
 
-// Correct base URL
-const BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:4000";
-
+// Use relative path - works on both localhost and Netlify
+// No hardcoded external URL needed
 const api = axios.create({
-  baseURL: BASE_URL + "/api",
+  baseURL: "/api",
   withCredentials: true,
   timeout: 15000,
   headers: {

@@ -12,7 +12,7 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# SPA fallback
+# Handle SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
