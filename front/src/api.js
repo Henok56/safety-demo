@@ -1,19 +1,16 @@
 import axios from "axios";
 
-// =======================
-// AXIOS INSTANCE (PUT IT HERE)
-// =======================
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://lohttps://safety-backend.vercel.appcalhost:4000/api";
+// Correct base URL
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL + "/api",
   withCredentials: true,
   timeout: 15000,
 });
 
-// =======================
 // TOKEN INTERCEPTOR
-// =======================
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
