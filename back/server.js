@@ -51,39 +51,50 @@ app.use(compression());
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-// Morgan logging
-app.use(
-  morgan((tokens, req, res) =>
-    [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens["response-time"](req, res),
-      "ms",
-      "| ID:",
-      req.id,
-    ].join(" ")
-  )
-);
+// Morgan logging with different formats for production/development
+const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(morgan(morganFormat));
 
 app.use(mongoSanitize());
 
-// Rate limiting
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // limit each IP to 500 requests per windowMs
-    message: "Too many requests from this IP, please try again later.",
-  })
-);
+// Rate limiting - more strict in production
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 100 : 500,
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 // ===============================
-// CORS
+// CORS - Dynamic for production
 // ===============================
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  'https://safetyoffice-frontend.vercel.app',
+  'https://safety-demo.vercel.app',
+  'https://safetyoffice.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: true,
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   })
 );
 
@@ -116,11 +127,8 @@ console.log("\n📦 Loading Routes:");
 routes.forEach(([name, file]) => {
   try {
     const router = require(file);
-
     if (!router) throw new Error("Router undefined");
-
     app.use(`/api/${name}`, router);
-
     console.log(`  ✔ /api/${name}`);
   } catch (err) {
     console.error(`  ✖ /api/${name} FAILED → ${err.message}`);
@@ -140,18 +148,20 @@ if (!fs.existsSync(uploads)) {
 app.use("/uploads", express.static(uploads));
 
 // ===============================
-// HEALTH CHECK (MongoDB Only)
+// HEALTH CHECK
 // ===============================
 app.get("/api/health", async (req, res) => {
   const health = {
     status: "ok",
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
     mongodb: "unknown",
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
   };
 
   try {
-    health.mongodb =
-      mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+    health.mongodb = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   } catch (err) {
     health.mongodb = "error";
   }
@@ -161,7 +171,28 @@ app.get("/api/health", async (req, res) => {
 
 // Simple ping endpoint
 app.get("/api/ping", (req, res) => {
-  res.json({ success: true, message: "pong", timestamp: new Date().toISOString() });
+  res.json({ 
+    success: true, 
+    message: "pong", 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
+
+// ===============================
+// ROOT ENDPOINT
+// ===============================
+app.get("/", (req, res) => {
+  res.json({
+    name: "Safety Office API",
+    version: "1.0.0",
+    status: "running",
+    endpoints: {
+      health: "/api/health",
+      ping: "/api/ping",
+      routes: "/api/{auth,employees,hazard-tracking,etc}"
+    }
+  });
 });
 
 // ===============================
@@ -171,6 +202,7 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route not found: ${req.originalUrl}`,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -181,14 +213,22 @@ app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.message);
   console.error(err.stack);
 
-  res.status(500).json({
+  // Don't leak stack traces in production
+  const errorResponse = {
     success: false,
     message: err.message || "Internal server error",
-  });
+    timestamp: new Date().toISOString()
+  };
+
+  if (process.env.NODE_ENV !== 'production') {
+    errorResponse.stack = err.stack;
+  }
+
+  res.status(500).json(errorResponse);
 });
 
 // ===============================
-// DATABASE CONNECT (Original MongoDB Connection)
+// DATABASE CONNECT
 // ===============================
 const connectDB = async () => {
   console.log("\n🔌 Connecting to MongoDB...");
@@ -201,7 +241,6 @@ const connectDB = async () => {
   }
 
   try {
-    // Original connection without deprecated options
     await mongoose.connect(process.env.MONGO_URI);
     console.log("🍃 MongoDB connected successfully");
     console.log(`   Database: ${mongoose.connection.name}`);
@@ -213,17 +252,47 @@ const connectDB = async () => {
 };
 
 // ===============================
+// GRACEFUL SHUTDOWN
+// ===============================
+const shutdown = async () => {
+  console.log('\n🛑 Shutting down gracefully...');
+  try {
+    await mongoose.connection.close();
+    console.log('📦 MongoDB connection closed');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error during shutdown:', err);
+    process.exit(1);
+  }
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+// ===============================
 // START SERVER
 // ===============================
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.HOST || "0.0.0.0";
 
-connectDB().then(() => {
-  app.listen(PORT, HOST, () => {
-    console.log("\n================================");
-    console.log(`🚀 Server is running!`);
-    console.log(`📍 URL: http://${HOST}:${PORT}`);
-    console.log(`🕐 Started: ${new Date().toLocaleString()}`);
-    console.log("================================\n");
-  });
-});
+// For Vercel serverless deployment
+const startServer = async () => {
+  await connectDB();
+  
+  // Only listen if not in serverless environment
+  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, HOST, () => {
+      console.log("\n================================");
+      console.log(`🚀 Server is running!`);
+      console.log(`📍 URL: http://${HOST}:${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🕐 Started: ${new Date().toLocaleString()}`);
+      console.log("================================\n");
+    });
+  }
+};
+
+startServer();
+
+// Export for Vercel serverless
+module.exports = app;
