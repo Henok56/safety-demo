@@ -1,7 +1,7 @@
 // src/kpi/smsRelated/hazardAlertBox.jsx
 import React from "react";
 import { FiAlertCircle, FiX, FiUser, FiCalendar, FiClock } from "react-icons/fi";
-import "../../styles/hazardAlertBox.css";
+import "../../styles/hazardalertbox.css";
 
 export default function HazardAlertBox({ duplicateData, onClose }) {
   const formatDate = (date) => {
