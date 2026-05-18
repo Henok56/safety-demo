@@ -1,16 +1,128 @@
-# Node modules
+# ====================
+# Dependencies
+# ====================
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
 
-# Frontend build output
-front/dist
-front/build
+# ====================
+# Environment Variables
+# ====================
+.env
+.env.local
+.env.production
+.env.development
+.env.test
 
-# Backend environment files
-back/.env
+# ====================
+# Build Outputs
+# ====================
+dist/
+build/
+.next/
+out/
+.cache/
+*.tsbuildinfo
 
-# Frontend environment files
-front/.env
-
-# OS or IDE files
-.DS_Store
+# ====================
+# IDE / Editor Files
+# ====================
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ====================
+# Logs
+# ====================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====================
+# Testing
+# ====================
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# ====================
+# OS Generated Files
+# ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.tmp
+*.temp
+
+# ====================
+# Backup Files
+# ====================
+*.bak
+*.backup
+*.old
+*.orig
+
+# ====================
+# Uploads / Media
+# ====================
+uploads/
+temp/
+tmp/
+*.zip
+*.rar
+*.7z
+
+# ====================
+# MongoDB
+# ====================
+*.mongodb
+dump/
+
+# ====================
+# Frontend Specific
+# ====================
+front/dist/
+front/build/
+front/.vite/
+front/node_modules/
+
+# ====================
+# Backend Specific
+# ====================
+back/dist/
+back/build/
+back/node_modules/
+back/uploads/
+
+# ====================
+# Vercel / Deployment
+# ====================
+.vercel/
+vercel.json
+.now/
+
+# ====================
+# Miscellaneous
+# ====================
+*.pem
+*.key
+*.crt
+.secrets/
+.DS_Store
+.eslintcache
+.prettierrc
