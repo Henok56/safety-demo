@@ -1,61 +1,9 @@
-# =========================
-# Dependencies
-# =========================
 node_modules/
-**/node_modules/
-
-# =========================
-# Environment files (VERY IMPORTANT)
-# =========================
 .env
 .env.*
-!.env.example
-
-back/.env
-back/.env.*
-front/.env
-front/.env.*
-
-# =========================
-# Build outputs
-# =========================
+mongo-data/
+.netlify/
+.vercel/
+.refact/
 dist/
 build/
-coverage/
-
-# =========================
-# Backend uploads / runtime files
-# =========================
-back/uploads/
-uploads/
-
-# =========================
-# Logs
-# =========================
-logs/
-*.log
-npm-debug.log*
-
-# =========================
-# Vercel
-# =========================
-.vercel/
-
-# =========================
-# Netlify
-# =========================
-.netlify/
-
-# =========================
-# IDE / editor files
-# =========================
-.vscode/
-.idea/
-.history/
-.refact/
-
-# =========================
-# OS files
-# =========================
-.DS_Store
-Thumbs.db
