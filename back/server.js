@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 });
 
 // ===============================
-// SECURITY
+// SECURITY MIDDLEWARE
 // ===============================
 app.disable("x-powered-by");
 
@@ -54,7 +54,6 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-
 app.use(mongoSanitize());
 
 // ===============================
@@ -69,41 +68,42 @@ app.use(
 );
 
 // ===============================
-// CORS (FIXED - PRODUCTION SAFE)
+// CORS FIX (PRODUCTION READY)
 // ===============================
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
-  "http://127.0.0.1:5173",
   "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
 
-  // ✅ YOUR FRONTEND (IMPORTANT)
+  // ✅ FRONTEND (Netlify)
   "https://startling-pithivier-8781be.netlify.app",
 
   // optional old deployments
   "https://safety-demo.vercel.app",
-  "https://front-96mk8y1gu-henok56s-projects.vercel.app",
-  "https://front-j0to7fwwd-henok56s-projects.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow server-to-server, curl, postman
+      // allow Postman, curl, server-to-server
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      console.log("❌ Blocked CORS request from:", origin);
-      return callback(new Error("Not allowed by CORS"), false);
+      console.log("❌ BLOCKED CORS:", origin);
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
   })
 );
+
+// ✅ IMPORTANT: Handle preflight requests
+app.options("*", cors());
 
 // ===============================
 // ROUTES
@@ -153,7 +153,7 @@ if (!fs.existsSync(uploads)) {
 app.use("/uploads", express.static(uploads));
 
 // ===============================
-// HEALTH
+// HEALTH CHECK
 // ===============================
 app.get("/api/health", (req, res) => {
   res.json({
@@ -189,7 +189,7 @@ app.use((err, req, res, next) => {
 });
 
 // ===============================
-// DATABASE
+// DATABASE CONNECTION
 // ===============================
 const connectDB = async () => {
   if (!process.env.MONGO_URI) {
@@ -207,7 +207,7 @@ const connectDB = async () => {
 };
 
 // ===============================
-// SERVER START
+// START SERVER
 // ===============================
 const PORT = process.env.PORT || 4000;
 
@@ -217,5 +217,5 @@ connectDB().then(() => {
   });
 });
 
-// Export (Vercel support)
+// Export for Vercel
 module.exports = app;
