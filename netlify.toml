@@ -6,13 +6,14 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# API Routes - point to Netlify Functions
+# Redirect API calls to your Vercel backend
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "https://safety-backend.vercel.app/api/:splat"
   status = 200
+  force = true
 
-# Handle SPA routing
+# Handle SPA routing (must be last)
 [[redirects]]
   from = "/*"
   to = "/index.html"
