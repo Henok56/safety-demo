@@ -18,3 +18,5 @@ vercel.json
 
 .vercel
 .env*.local
+back/uploads/
+uploads/
