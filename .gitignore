@@ -2,3 +2,16 @@
 back/.env
 back/.env.production
 .refact/
+
+# Backend environment files
+back/.env
+back/.env.production
+back/.env.local
+
+# AI/IDE cache
+.refact/
+.history/
+
+# Vercel deployment
+vercel.json
+.vercel/
