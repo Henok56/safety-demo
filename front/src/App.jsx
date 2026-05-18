@@ -3,74 +3,74 @@ import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 /* ========= Public ========= */
-import HomePage from "./pages/HomePage";
-import Login from "./account/Login";
-import Register from "./account/Register";
-import About from "./pages/About";
-import Sla from "./pages/Sla";
-import Contacts from "./pages/Contacts";
+import HomePage from "./pages/HomePage.jsx";
+import Login from "./account/Login.jsx";
+import Register from "./account/Register.jsx";
+import About from "./pages/About.jsx";
+import Sla from "./pages/Sla.jsx";
+import Contacts from "./pages/Contacts.jsx";
 
 /* ========= User ========= */
-import Dashboard from "./pages/Dashboard";
-import OccurrenceForm from "./pages/OccurrenceForm";
-import InvestigationFollowUpWrapper from "./pages/InvestigationFollowUpWrapper";
-import OccurrenceList from "./pages/OccurrenceList";
-import OccurrenceTrend from "./pages/OccurrenceTrend";
-import ScheduleTrend from "./schedulePage/ScheduleTrend";
-import ScheduleTable from "./schedulePage/ScheduleList";
-import ForgotPassword from "./account/ForgotPassword";
-import ResetPassword from "./account/ResetPassword";
+import Dashboard from "./pages/Dashboard.jsx";
+import OccurrenceForm from "./pages/OccurrenceForm.jsx";
+import InvestigationFollowUpWrapper from "./pages/InvestigationFollowUpWrapper.jsx";
+import OccurrenceList from "./pages/OccurrenceList.jsx";
+import OccurrenceTrend from "./pages/OccurrenceTrend.jsx";
+import ScheduleTrend from "./schedulePage/ScheduleTrend.jsx";
+import ScheduleTable from "./schedulePage/ScheduleList.jsx";
+import ForgotPassword from "./account/ForgotPassword.jsx";
+import ResetPassword from "./account/ResetPassword.jsx";
 
 /* ========= Admin ========= */
-import AdminHomepage from "./AdminPage/AdminHomepage";
-import AdminUsers from "./AdminPage/AdminUsers";
-import AdminAudit from "./AdminPage/AdminAudit";
-import AdminScheduleList from "./schedulePage/AdminSchedulelist";
-import ScheduleForm from "./schedulePage/ScheduleForm";
+import AdminHomepage from "./AdminPage/AdminHomepage.jsx";
+import AdminUsers from "./AdminPage/AdminUsers.jsx";
+import AdminAudit from "./AdminPage/AdminAudit.jsx";
+import AdminScheduleList from "./schedulePage/AdminSchedulelist.jsx";
+import ScheduleForm from "./schedulePage/ScheduleForm.jsx";
 
 /* ========= Talent ========= */
-import TalentLayout from "./layouts/TalentLayout";
-import TalentDashboard from "./talentmanagement/pages/TalentDashboard";
-import EmployeeProfile from "./talentmanagement/pages/EmployeeProfile";
-import EmployeeRegistration from "./talentmanagement/pages/EmployeeRegistration";
-import AssignTraining from "./talentmanagement/pages/AssignTraining";
-import EmployeeList from "./talentmanagement/pages/EmployeeList";
-import TrainingManager from "./talentmanagement/pages/TrainingManager";
-import EditEmployee from "./talentmanagement/pages/EditEmployee";
-import MyTraining from "./talentmanagement/pages/MyTraining";
+import TalentLayout from "./layouts/TalentLayout.jsx";
+import TalentDashboard from "./talentmanagement/pages/TalentDashboard.jsx";
+import EmployeeProfile from "./talentmanagement/pages/EmployeeProfile.jsx";
+import EmployeeRegistration from "./talentmanagement/pages/EmployeeRegistration.jsx";
+import AssignTraining from "./talentmanagement/pages/AssignTraining.jsx";
+import EmployeeList from "./talentmanagement/pages/EmployeeList.jsx";
+import TrainingManager from "./talentmanagement/pages/TrainingManager.jsx";
+import EditEmployee from "./talentmanagement/pages/EditEmployee.jsx";
+import MyTraining from "./talentmanagement/pages/MyTraining.jsx";
 
 /* ========= KPI ========= */
-import FleetAssignment from "./kpi/fleetAssignment/fleetAssignment";
-import UnproductiveTimeComp from "./components/unproductiveTimeComp";
-import UnproductiveTimeDashboard from "./kpi/unproductiveTime/UnproductiveTimeDashboard";
-import UnproductiveTimeTimer from "./kpi/unproductiveTime/UnproductiveTimeTimer";
-import UnproductiveTimeList from "./kpi/unproductiveTime/UnproductiveTimeList";
-import UnproductiveTimeDetails from "./kpi/unproductiveTime/UnproductiveTimeDetails";
-import UnproductiveTimeApproval from "./kpi/unproductiveTime/UnproductiveTimeApproval";
-import CorporateCulturePage from "./kpi/CorporateCulture/CultureCompliance";
+import FleetAssignment from "./kpi/fleetAssignment/fleetAssignment.jsx";
+import UnproductiveTimeComp from "./components/unproductiveTimeComp.jsx";
+import UnproductiveTimeDashboard from "./kpi/unproductiveTime/UnproductiveTimeDashboard.jsx";
+import UnproductiveTimeTimer from "./kpi/unproductiveTime/UnproductiveTimeTimer.jsx";
+import UnproductiveTimeList from "./kpi/unproductiveTime/UnproductiveTimeList.jsx";
+import UnproductiveTimeDetails from "./kpi/unproductiveTime/UnproductiveTimeDetails.jsx";
+import UnproductiveTimeApproval from "./kpi/unproductiveTime/UnproductiveTimeApproval.jsx";
+import CorporateCulturePage from "./kpi/CorporateCulture/CultureCompliance.jsx";
 
 /* ========= SMS Hazard Tracking ========= */
-import SmsDashboard from "./kpi/smsRelated/smsDashboard";
-import HazardList from "./kpi/smsRelated/hazardList";
-import HazardForm from "./kpi/smsRelated/hazardForm";
-import HazardDetail from "./kpi/smsRelated/hazardDetail";
-import HazardAlertBox from "./kpi/smsRelated/hazardAlertBox";
+import SmsDashboard from "./kpi/smsRelated/smsDashboard.jsx";
+import HazardList from "./kpi/smsRelated/hazardList.jsx";
+import HazardForm from "./kpi/smsRelated/hazardForm.jsx";
+import HazardDetail from "./kpi/smsRelated/hazardDetail.jsx";
+import HazardAlertBox from "./kpi/smsRelated/hazardAlertBox.jsx";
 
 /* ========= FDM ========= */
-import FdmLayout from "./layouts/FdmLayout"; 
-import FdmDshboard from "./fdm/fdmDashboard";
-import FdmForm from "./fdm/fdmForm";
-import FdmRelatedPage from "./kpi/FdmRelated/FdmRelatedPage";
+import FdmLayout from "./layouts/FdmLayout.jsx"; 
+import FdmDshboard from "./fdm/fdmDashboard.jsx";
+import FdmForm from "./fdm/fdmForm.jsx";
+import FdmRelatedPage from "./kpi/FdmRelated/FdmRelatedPage.jsx";
 
 /* ========= Layouts ========= */
-import HomeNav from "./components/HomeNav";
-import Nav from "./components/Nav";
-import AdminNav from "./components/AdminNav";
-import AdminLayout from "./layouts/AdminLayout";
+import HomeNav from "./components/HomeNav.jsx";
+import Nav from "./components/Nav.jsx";
+import AdminNav from "./components/AdminNav.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
 
 /* ========= Guards ========= */
-import AdminRoute from "./AdminPage/AdminRoute";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./AdminPage/AdminRoute.jsx";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 
 export default function App() {
   return (
