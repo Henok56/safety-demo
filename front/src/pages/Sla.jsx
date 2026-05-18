@@ -1,62 +1,79 @@
 import React from "react";
-import '../styles/Sla.css';
+import { FiInfo, FiShield, FiUsers, FiClock, FiCheckCircle } from "react-icons/fi";
+import "../styles/Sla.css";
 
 const RolesPage = () => {
   return (
     <div className="roles-container">
-      <h1>Roles and Responsibilities</h1>
+      <div className="page-header">
+        <FiInfo className="header-icon" />
+        <h1>Roles & Responsibilities</h1>
+      </div>
 
-      <section>
-        <h2>Flight Operations Safety Office</h2>
-        <ul>
-          <li>Oversee the implementation of safety protocols.</li>
-          <li>Provide training and resources for safety compliance.</li>
-          <li>Provide documents, procedures, manuals etc. for ongoing investigation.</li>
-          <li>Avail personnel for accident/incident investigation.</li>
-          <li>Provide FDA results, associated data, and reports as needed.</li>
-        </ul>
-      </section>
+      <div className="page-description-card">
+        <p>
+          This page serves as a reference document that defines the <strong>roles, responsibilities, 
+          and accountability</strong> of various departments and positions within the organization's 
+          safety management structure.
+        </p>
+      </div>
 
-      <section>
-        <h2>Manager MRO QMS & SMS</h2>
-        <ul>
-          <li>Communicate with MRO team for required data and provide to investigation team.</li>
-          <li>Handle hazard and safety reports not recorded in MLB on SMS within timeframe.</li>
-        </ul>
-      </section>
+      <div className="info-grid">
+        <div className="info-card">
+          <FiShield className="card-icon" />
+          <h3>What is displayed here?</h3>
+          <p>In a production environment, this page would show:</p>
+          <ul>
+            <li>Department-specific responsibilities</li>
+            <li>Key performance indicators (KPIs)</li>
+            <li>Service Level Agreement (SLA) targets</li>
+            <li>Escalation paths and reporting lines</li>
+          </ul>
+        </div>
 
-      <section>
-        <h2>Director LMT (Manager Line Maintenance)</h2>
-        <ul>
-          <li>Download CVR, DFDR, QAR data for FDM within 12 hours of occurrence.</li>
-          <li>Ensure downloaded data is fully delivered to MCC.</li>
-          <li>Mitigate data loss due to human negligence.</li>
-          <li>Provide updates on design/procedural changes affecting the data server.</li>
-          <li>Respond promptly to all data quality–related queries.</li>
-        </ul>
-      </section>
+        <div className="info-card">
+          <FiUsers className="card-icon" />
+          <h3>Who is responsible for what?</h3>
+          <p>This page defines accountability for:</p>
+          <ul>
+            <li>Flight Data Monitoring (FDM) processes</li>
+            <li>Safety Management System (SMS) compliance</li>
+            <li>Incident investigation coordination</li>
+            <li>Data quality and integrity management</li>
+          </ul>
+        </div>
 
-      <section>
-        <h2>Director LMT (Manager MCC)</h2>
-        <ul>
-          <li>Upload DFDR data to MRO server for analysis and notify Manager ASE.</li>
-          <li>Ensure downloaded data is fully delivered from Line Maintenance.</li>
-          <li>Mitigate data loss due to human negligence.</li>
-          <li>Provide updates on design/procedural changes affecting the data server.</li>
-          <li>Respond promptly to all data quality–related queries.</li>
-        </ul>
-      </section>
+        <div className="info-card">
+          <FiClock className="card-icon" />
+          <h3>Service Level Expectations</h3>
+          <p>This page sets expectations for:</p>
+          <ul>
+            <li>Response times for data requests</li>
+            <li>Data delivery deadlines</li>
+            <li>Investigation support timelines</li>
+            <li>Quality assurance metrics</li>
+          </ul>
+        </div>
 
-      <section>
-        <h2>Director ASE (Manager Systems Engineering)</h2>
-        <ul>
-          <li>Perform DFDR analysis and provide analysis data.</li>
-          <li>Ensure downloaded data is fully delivered from MCC.</li>
-          <li>Mitigate data loss due to human negligence.</li>
-          <li>Provide updates on design/procedural changes affecting the data server.</li>
-          <li>Respond promptly to all data quality–related queries.</li>
-        </ul>
-      </section>
+        <div className="info-card">
+          <FiCheckCircle className="card-icon" />
+          <h3>Why this page exists</h3>
+          <p>To ensure:</p>
+          <ul>
+            <li>Clear understanding of duties across departments</li>
+            <li>No gaps or overlaps in responsibilities</li>
+            <li>Accountability for safety-related tasks</li>
+            <li>Efficient cross-functional coordination</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="demo-notice">
+        <p>
+          <strong>Note:</strong> This is a demonstration version. The actual page would contain 
+          detailed role definitions and responsibilities specific to each department.
+        </p>
+      </div>
     </div>
   );
 };

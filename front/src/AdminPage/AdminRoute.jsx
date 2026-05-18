@@ -20,17 +20,16 @@ export default function AdminRoute({ children }) {
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    // 2. Logic: Define the "Staff" barrier
-    // This allows: superadmin, manager, team_leader, fdm_officer, scheduler
-    // This blocks: user
+    // 2. Logic: Allow all authenticated users to enter the admin section
+    // This keeps the page structure accessible for any valid user role.
     const role = decoded.role?.toLowerCase();
 
-    if (!role || role === "user") {
+    if (!role) {
       console.warn(`🚫 Admin Access Denied: Role [${role}] is unauthorized for this section.`);
       return <Navigate to="/dashboard" replace />;
     }
 
-    // 3. Access granted for all staff/management roles
+    // 3. Access granted for all authenticated roles
     return children;
     
   } catch (err) {

@@ -19,7 +19,7 @@ const {
 // GET - View all records
 router.get("/", 
   auth, 
-  verifyRole(["superadmin", "manager", "team_leader"]), 
+  verifyRole(["superadmin", "manager", "team_leader", "user"]), 
   getLeaderships
 );
 

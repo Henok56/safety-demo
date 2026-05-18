@@ -6,8 +6,15 @@ import {
   FaClipboardList,
   FaCalendarAlt,
   FaPlus,
+  FaTachometerAlt,
+  FaUserPlus,
+  FaPlane,
+  FaClock,
+  FaHandshake,
+  FaSync,
+  FaExclamationTriangle,
   FaChartLine,
-  FaTachometerAlt
+  FaList,
 } from "react-icons/fa";
 import "../styles/AdminNav.css";
 
@@ -54,60 +61,142 @@ export default function AdminNav() {
       </button>
 
       <nav className="admin-nav-links">
+        <div className="nav-divider">Talent Related Pages</div>
         
-        {/* FDM Followup: Superadmin, Manager, FDM Officer
-        {hasAccess(["superadmin", "manager", "fdm_officer"]) && (
-          <NavLink to="/fdm" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            <span className="link-text">FDM Followup</span>
-            <FaUsers size={20} />
-          </NavLink>
-        )} */}
-
-        {/* Talent Management: Scheduler REMOVED (Strictly Management Roles) */}
-        {hasAccess(["superadmin", "manager", "team_leader"]) && (
-          <NavLink to="/talent/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        {/* Talent Management */}
+        {hasAccess(["superadmin", "manager", "team_leader", "user"]) && (
+          <NavLink 
+            to="/admin/talent/dashboard" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          >
             <span className="link-text">Talent Management</span>
             <FaUsers size={20} />
           </NavLink>
         )}
 
-        {/* User Management: Superadmin ONLY */}
-        {hasAccess(["superadmin"]) && (
-          <NavLink to="/admin/users" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            <span className="link-text">User Control</span>
-            <FaUsers size={20} />
+        {/* Employee Registration - Superadmin Only */}
+        {hasAccess(["superadmin", "user"]) && (
+          <NavLink 
+            to="/admin/talent/register" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          >
+            <span className="link-text">Register Employee Profile</span>
+            <FaUserPlus size={20} />
           </NavLink>
         )}
 
-        {/* Schedule Management: Includes Scheduler */}
-        {hasAccess(["superadmin", "manager", "scheduler", "team_leader"]) && (
+        {/* ==================== ACCOUNT RELATED PAGES ==================== */}
+        {hasAccess(["superadmin", "manager", "team_leader", "user"]) && (
           <>
-            <div className="nav-divider">Schedules</div>
-            <NavLink to="/admin/schedules/create" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-              <span className="link-text">Create Schedule</span>
-              <FaPlus size={20} />
+            <div className="nav-divider">Account Related Pages</div>
+
+            {/* User Management - Superadmin Only */}
+            {hasAccess(["superadmin", "user"]) && (
+              <NavLink 
+                to="/admin/users" 
+                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+              >
+                <span className="link-text">User Control</span>
+                <FaUsers size={20} />
+              </NavLink>
+            )}
+
+            {/* User Registration (Register.jsx) - Superadmin Only */}
+            {hasAccess(["superadmin", "user"]) && (
+              <NavLink 
+                to="/admin/register-user" 
+                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+              >
+                <span className="link-text">Register User Account</span>
+                <FaUserPlus size={20} />
+              </NavLink>
+            )}
+          </>
+        )}
+
+        {/* ==================== KPI & OPERATIONS ==================== */}
+        {hasAccess(["superadmin", "manager", "team_leader", "user"]) && (
+          <>
+            <div className="nav-divider">KPI Related Pages</div>
+
+            <NavLink
+              to="/kpi/fleet-assignment"
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">Fleet Assignment</span>
+              <FaPlane size={20} />
             </NavLink>
 
-            <NavLink to="/admin/schedulelist" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-              <span className="link-text">Update Schedule</span>
-              <FaCalendarAlt size={20} />
+            <NavLink
+              to="/kpi/unproductive-time"
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">Unproductive Time</span>
+              <FaClock size={20} />
             </NavLink>
 
-            <NavLink to="/admin/scheduletrend" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-              <span className="link-text">Schedule Trend</span>
+            {/* FDM Monitoring (Synced Events) */}
+            <NavLink
+              to="/admin/fdm-monitoring"
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">FDM Monitoring</span>
+              <FaSync size={20} />
+            </NavLink>
+
+            {/* Corporate Culture Compliance */}
+            <NavLink
+              to="/kpi/corporate-culture"
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">Corporate Culture</span>
+              <FaHandshake size={20} />
+            </NavLink>
+
+            
+            {/* SMS Dashboard (Main) */}
+            <NavLink
+              to="/kpi/sms/dashboard"
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">SMS Dashboard</span>
               <FaChartLine size={20} />
             </NavLink>
           </>
         )}
 
-        {/* Audit Logs: Management visibility only */}
-        {hasAccess(["superadmin", "manager", "team_leader"]) && (
-          <NavLink to="/admin/audit" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        {/* Schedule Management */}
+        {hasAccess(["superadmin", "manager", "scheduler", "team_leader", "user"]) && (
+          <>
+            <div className="nav-divider">Schedules</div>
+            <NavLink 
+              to="/admin/schedules/create" 
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">Create Schedule</span>
+              <FaPlus size={20} />
+            </NavLink>
+
+            <NavLink 
+              to="/admin/schedulelist" 
+              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            >
+              <span className="link-text">Update Schedule</span>
+              <FaCalendarAlt size={20} />
+            </NavLink>
+          </>
+        )}
+
+        {/* Audit Logs 
+        {hasAccess(["superadmin", "manager", "team_leader", "user"]) && (
+          <NavLink 
+            to="/admin/audit" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          >
             <span className="link-text">Audit Logs</span>
             <FaClipboardList size={20} />
           </NavLink>
-        )}
-
+        )}*/}
       </nav>
     </aside>
   );

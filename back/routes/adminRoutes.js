@@ -1,44 +1,77 @@
+// C:\Users\HenokGs\Desktop\office_projects\back\routes\adminRoutes.js
+
 const express = require("express");
 const router = express.Router();
 
-// Middlewares
-const authMiddleware = require("../middleware/authMiddleware"); 
-const verifyAdminMiddleware = require("../middleware/verifyAdminMiddleware"); 
+// 🔐 Middleware (IMPORTANT: match your authController)
+const authMiddleware = require("../middleware/authMiddleware");
+const verifyRole = require("../middleware/verifyAdminMiddleware");
 
-// Controllers
-const { 
-  getAllUsers, 
-  updateUserRole, 
-  makeAdmin, 
-  deleteUser 
+// 📦 Controllers
+
+// ✅ USER MANAGEMENT (correct file)
+const {
+  getAllUsers,
+  makeAdmin,
+  deleteUser,
+  updateUserRole,
 } = require("../controllers/adminController");
 
-// Audit Controller Functions
-const { 
-  getOccurrenceAudit, 
-  getScheduleAudit 
+// ✅ AUDIT (correct file)
+const {
+  getOccurrenceAudit,
+  getScheduleAudit,
 } = require("../controllers/auditController");
 
-// --- User Management ---
-router.get("/users", authMiddleware, verifyAdminMiddleware(["superadmin", "manager", "team_leader", "scheduler"]), getAllUsers);
-router.put("/users/:id/role", authMiddleware, verifyAdminMiddleware(["superadmin"]), updateUserRole);
-router.post("/make-admin", authMiddleware, verifyAdminMiddleware(["superadmin"]), makeAdmin);
-router.delete("/users/:username", authMiddleware, verifyAdminMiddleware(["superadmin"]), deleteUser);
+console.log("✅ Admin routes loaded");
 
-// --- Audit Management ---
-// 🚩 This path + the server.js prefix results in: /api/admin/audit/occurrences
+// ==============================
+// 👥 USER MANAGEMENT
+// ==============================
+
 router.get(
-  "/audit/occurrences", 
-  authMiddleware, 
-  verifyAdminMiddleware(["superadmin", "manager", "team_leader"]), 
+  "/users",
+  authMiddleware,
+  verifyRole(["superadmin", "manager"]),
+  getAllUsers
+);
+
+router.put(
+  "/users/:id/role",
+  authMiddleware,
+  verifyRole(["superadmin"]),
+  updateUserRole
+);
+
+router.post(
+  "/make-admin",
+  authMiddleware,
+  verifyRole(["superadmin"]),
+  makeAdmin
+);
+
+router.delete(
+  "/users/:id",
+  authMiddleware,
+  verifyRole(["superadmin"]),
+  deleteUser
+);
+
+// ==============================
+// 📊 AUDIT ROUTES
+// ==============================
+
+router.get(
+  "/audit/occurrences",
+  authMiddleware,
+  verifyRole(["superadmin", "manager"]),
   getOccurrenceAudit
 );
 
-// 🚩 This path + the server.js prefix results in: /api/admin/audit/schedules
 router.get(
-  "/audit/schedules", 
-  authMiddleware, 
-  verifyAdminMiddleware(["superadmin", "manager", "team_leader"]), 
+  "/audit/schedules",
+  authMiddleware,
+  verifyRole(["superadmin", "manager"]),
   getScheduleAudit
 );
 

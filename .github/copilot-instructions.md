@@ -6,7 +6,8 @@ Big picture
 -----------
 - Monorepo-like layout: backend lives in [back](back) and frontend in [front](front).
 - Backend: Express + Mongoose API. Entry is [back/server.js](back/server.js) (also a near-duplicate in [back/back/index.js](back/back/index.js)). Routes are under [back/routes](back/routes) and controllers under [back/controllers](back/controllers). Models live in [back/models](back/models).
-- Frontend: Vite + React app in [front/src](front/src). HTTP client is [front/src/api.js](front/src/api.js) which sets `baseURL` to `http://<hostname>:5000/api` and attaches `Authorization: Bearer <token>` from `localStorage`.
+- Frontend: Vite + React app in [front/src](front/src). HTTP client is [front/src/api.js](front/src/api.js) which sets `baseURL` to `http://<hostname>:
+/api` and attaches `Authorization: Bearer <token>` from `localStorage`.
 
 How to run (developer workflows)
 --------------------------------
@@ -45,7 +46,8 @@ Where to look for common tasks
 
 Integration points & caveats
 ---------------------------
-- Front expects backend at port `5000` during dev (axios baseURL). If serving backend elsewhere, update `front/src/api.js` or the `BACKEND_URL` in [front/config.js](front/config.js).
+- Front expects backend at port `
+` during dev (axios baseURL). If serving backend elsewhere, update `front/src/api.js` or the `BACKEND_URL` in [front/config.js](front/config.js).
 - No centralized error middleware — controllers return errors inline. Be conservative when refactoring error handling.
 
 Tests & CI

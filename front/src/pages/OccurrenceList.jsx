@@ -112,7 +112,7 @@ const OccurrenceList = () => {
         "Event Description": o.eventDescription || "-",
         "Flight Phase": o.flightPhase || "-",
         "Source (Link)": o.reportSource && o.reportSource.startsWith("/uploads/")
-          ? `http://${window.location.hostname}:5000${o.reportSource}`
+          ? `http://${window.location.hostname}:4000${o.reportSource}`
           : (o.reportSource || "-"),
         "Risk Rating": o.riskRating || "-",
         "Responsible Division": o.responsibleDivision || "-",
@@ -205,7 +205,7 @@ const OccurrenceList = () => {
                   <td>{o.flightPhase || "-"}</td>
                   <td>
                     {o.reportSource && o.reportSource.startsWith("/uploads/") ? (
-                      <a href={`http://${window.location.hostname}:5000${o.reportSource}`} target="_blank" rel="noopener noreferrer">
+                      <a href={`http://${window.location.hostname}:4000${o.reportSource}`} target="_blank" rel="noopener noreferrer">
                         View
                       </a>
                     ) : (

@@ -1,5 +1,4 @@
 const Leadership = require("../models/LeadershipDevelopment.model");
-const { sendTrainingEmail } = require("../emailrelated/mailer");
 
 exports.getLeaderships = async (req, res) => {
   try {
@@ -29,28 +28,10 @@ exports.createLeadership = async (req, res) => {
     const record = new Leadership(data);
     await record.save();
 
-    // ✅ Added email to select
     await record.populate([
       { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
       { path: "trainingType", select: "topic" }
     ]);
-
-    // ✅ Send email notification
-    const user = record.employee?.userAccount;
-    if (user?.email) {
-      await sendTrainingEmail({
-        toEmail: user.email,
-        employeeName: `${user.firstname} ${user.lastname}`,
-        trainingType: "Leadership Development",
-        details: {
-          "Training Topic": record.trainingType?.topic || "N/A",
-          "Groomed For Position": record.groomedForPosition,
-          "Preferred Schedule": record.preferredSchedule
-            ? new Date(record.preferredSchedule).toDateString() : "TBD",
-          "Department": record.department || "N/A"
-        }
-      });
-    }
 
     res.status(201).json({ success: true, data: record });
   } catch (err) {
@@ -77,23 +58,6 @@ exports.updateLeadership = async (req, res) => {
     ]);
 
     if (!record) return res.status(404).json({ success: false, message: "Record not found" });
-
-    // ✅ Notify on status change
-    if (req.body.remark) {
-      const user = record.employee?.userAccount;
-      if (user?.email) {
-        await sendTrainingEmail({
-          toEmail: user.email,
-          employeeName: `${user.firstname} ${user.lastname}`,
-          trainingType: "Leadership Development",
-          details: {
-            "Training Topic": record.trainingType?.topic || "N/A",
-            "Status Updated To": record.remark,
-            "Groomed For Position": record.groomedForPosition
-          }
-        });
-      }
-    }
 
     res.json({ success: true, data: record });
   } catch (err) {

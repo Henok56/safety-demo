@@ -146,7 +146,7 @@ imap.on('error', (err) => {
 
 imap.on('end', () => {
     console.log('IMAP Connection lost. Reconnecting in 5s...');
-    setTimeout(() => imap.connect(), 5000);
+    setTimeout(() => imap.connect(), 000);
 });
 
 imap.connect();

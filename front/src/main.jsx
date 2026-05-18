@@ -5,7 +5,7 @@ import App from "./App.jsx";
 
 const rootElement = document.getElementById("root");
 createRoot(rootElement).render(
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <App />
   </BrowserRouter>
 );

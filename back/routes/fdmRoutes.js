@@ -1,16 +1,27 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const fdmController = require('../controllers/fdmController');
-const auth = require("../middleware/authMiddleware");
-const verifyRole = require("../middleware/verifyAdminMiddleware");
-const upload = require('../middleware/uploadMiddleware');
+const fdmController = require("../controllers/fdmController");
 
-router.use(auth); // Protect all routes
+// =========================
+// BASE ROUTE
+// =========================
+router
+  .route("/")
+  .get(fdmController.getAllFdmEvents)
+  .post(fdmController.createFdmEvent);
 
-router.get('/', verifyRole(["superadmin", "manager", "fdm_officer"]), fdmController.getAllEvents);
-router.post('/', verifyRole(["superadmin", "manager", "fdm_officer"]), upload.single('attachment'), fdmController.createEvent);
-router.put('/:id', verifyRole(["superadmin", "manager", "fdm_officer"]), fdmController.updateEvent);
-router.patch('/:id/close', verifyRole(["superadmin", "manager", "fdm_officer"]), fdmController.updateEvent);
-router.delete('/:id', verifyRole(["superadmin", "manager", "fdm_officer"]), fdmController.deleteEvent);
+// =========================
+// SINGLE EVENT
+// =========================
+router
+  .route("/:id")
+  .get(fdmController.getFdmEvent)
+  .patch(fdmController.updateFdmEvent)
+  .delete(fdmController.deleteFdmEvent);
+
+// =========================
+// DISCUSSION
+// =========================
+router.post("/:id/discussion", fdmController.addDiscussionEntry);
 
 module.exports = router;

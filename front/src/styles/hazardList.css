@@ -1,0 +1,362 @@
+/* ==========================================================================
+   Hazard List Dashboard Component Styles
+   ========================================================================== */
+
+:root {
+  --primary-color: #4f46e5;       /* Modern Indigo */
+  --primary-hover: #4338ca;
+  --bg-main: #f8fafc;             /* Soft off-white */
+  --bg-card: #ffffff;
+  --text-main: #1e293b;           /* Slate 800 */
+  --text-muted: #64748b;          /* Slate 500 */
+  --border-color: #e2e8f0;        /* Slate 200 */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --transition: all 0.2s ease-in-out;
+}
+
+/* Container Styling */
+.hazard-list-container {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  padding: 1.75rem;
+  margin: 1.5rem auto;
+  max-width: 1200px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
+}
+
+/* Header & Search Layout */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.list-header h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  position: relative;
+}
+
+.list-header h3::after {
+  content: '';
+  position: absolute;
+  bottom: -1.3rem;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Search Bar styling */
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.85rem;
+  width: 100%;
+  max-width: 320px;
+  transition: var(--transition);
+}
+
+.search-box:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  background-color: #fff;
+}
+
+.search-box svg {
+  color: var(--text-muted);
+  margin-right: 0.6rem;
+  font-size: 1.1rem;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.search-box input::placeholder {
+  color: #94a3b8;
+}
+
+/* Responsive Table Wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #fff;
+}
+
+.hazard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.925rem;
+}
+
+.hazard-table th {
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hazard-table tr.hazard-row {
+  transition: var(--transition);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hazard-table tr.hazard-row:last-child {
+  border-bottom: none;
+}
+
+.hazard-table tr.hazard-row:hover {
+  background-color: rgba(248, 250, 252, 0.85);
+}
+
+.hazard-table td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+}
+
+/* Badges and Cells styling */
+.hazard-id-badge {
+  background-color: rgba(79, 70, 229, 0.08);
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.sequential-cell {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.date-cell {
+  color: var(--text-muted);
+  font-size: 0.87rem;
+  display: table-cell; /* Keeps layout stable, but ensures flex alignments for contents */
+}
+
+.date-cell svg {
+  margin-right: 0.4rem;
+  vertical-align: -1px;
+  color: #94a3b8;
+}
+
+/* Action Buttons Grid */
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  background: transparent;
+}
+
+.action-btn svg {
+  font-size: 0.9rem;
+}
+
+.view-btn {
+  color: var(--text-muted);
+  border-color: var(--border-color);
+}
+.view-btn:hover {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  border-color: #cbd5e1;
+}
+
+.edit-btn {
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+.edit-btn:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.delete-btn {
+  color: var(--danger-color);
+  background-color: rgba(239, 68, 68, 0.05);
+}
+.delete-btn:hover {
+  background-color: var(--danger-color);
+  color: #fff;
+}
+
+/* Pagination UI styling */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pagination-info {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pagination-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--bg-main);
+}
+
+.page-number {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+/* Empty State Styling */
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: var(--bg-main);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.empty-content svg {
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.empty-content p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 0.25rem 0;
+}
+
+.empty-content span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Loading/Spinner State */
+.hazard-list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(79, 70, 229, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Overrides */
+@media (max-width: 640px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .search-box {
+    max-width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: center;
+  }
+}

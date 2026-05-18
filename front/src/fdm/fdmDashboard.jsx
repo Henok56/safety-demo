@@ -20,7 +20,7 @@ const FdmDashboard = () => {
   const recordsPerPage = 10;
 
   // Use local fallback if IP is unreachable on VPN
-  const SERVER_URL = "http://10.0.68.42:5000"; 
+  const SERVER_URL = "http://10.0.68.42:000"; 
 
   useEffect(() => {
     fetchFdmData();

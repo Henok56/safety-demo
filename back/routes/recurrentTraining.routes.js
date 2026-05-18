@@ -20,7 +20,7 @@ const router = express.Router();
 // GET all training records (Fixes 403 in Dashboard)
 router.get("/", 
   auth, 
-  verifyRole(["superadmin", "manager", "team_leader"]), 
+  verifyRole(["superadmin", "manager", "team_leader", "user"]), 
   getRecurrentTrainings
 );
 

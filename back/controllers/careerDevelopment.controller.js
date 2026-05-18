@@ -1,5 +1,4 @@
 const CareerDevelopment = require("../models/CareerDevelopment.model");
-const { sendTrainingEmail } = require("../emailrelated/mailer");
 
 // ===========================
 // CREATE
@@ -15,7 +14,6 @@ exports.createCareer = async (req, res) => {
     const career = new CareerDevelopment(careerData);
     const savedCareer = await career.save();
 
-    // ✅ Added email to select
     await savedCareer.populate({
       path: "employee",
       populate: {
@@ -23,22 +21,6 @@ exports.createCareer = async (req, res) => {
         select: "firstname lastname userid email"
       }
     });
-
-    // ✅ Send email notification
-    const user = savedCareer.employee?.userAccount;
-    if (user?.email) {
-      await sendTrainingEmail({
-        toEmail: user.email,
-        employeeName: `${user.firstname} ${user.lastname}`,
-        trainingType: "Career Development",
-        details: {
-          "Topic": savedCareer.topic,
-          "Tentative Schedule": savedCareer.tentativeScheduleMonth || "TBD",
-          "Status": savedCareer.remark || "Pending",
-          "Department": savedCareer.costCenter || "N/A"
-        }
-      });
-    }
 
     res.status(201).json({ success: true, data: savedCareer });
   } catch (err) {
@@ -112,23 +94,6 @@ exports.updateCareer = async (req, res) => {
     });
 
     if (!career) return res.status(404).json({ success: false, message: "Career not found" });
-
-    // ✅ Notify if remark/status changed
-    if (req.body.remark && req.body.remark !== "pending") {
-      const user = career.employee?.userAccount;
-      if (user?.email) {
-        await sendTrainingEmail({
-          toEmail: user.email,
-          employeeName: `${user.firstname} ${user.lastname}`,
-          trainingType: "Career Development",
-          details: {
-            "Topic": career.topic,
-            "Status Updated To": career.remark,
-            "Tentative Schedule": career.tentativeScheduleMonth || "TBD"
-          }
-        });
-      }
-    }
 
     res.json({ success: true, data: career });
   } catch (err) {

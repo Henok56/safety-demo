@@ -1,5 +1,4 @@
 const RecurrentTraining = require("../models/RecurrentTraining.model");
-const { sendTrainingEmail } = require("../emailrelated/mailer");
 
 exports.createRecurrentTraining = async (req, res) => {
   try {
@@ -14,28 +13,10 @@ exports.createRecurrentTraining = async (req, res) => {
     const training = new RecurrentTraining(data);
     await training.save();
 
-    // ✅ Deep populate with email
     await training.populate([
       { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
       { path: "trainingType", select: "topic" }
     ]);
-
-    // ✅ Send email notification
-    const user = training.employee?.userAccount;
-    if (user?.email) {
-      await sendTrainingEmail({
-        toEmail: user.email,
-        employeeName: `${user.firstname} ${user.lastname}`,
-        trainingType: "Recurrent Training",
-        details: {
-          "Training Topic": training.trainingType?.topic || "N/A",
-          "Tentative Schedule": training.tentativeScheduleDate
-            ? new Date(training.tentativeScheduleDate).toDateString() : "TBD",
-          "Category": training.category || "Recurrent Training",
-          "Department": training.department || "N/A"
-        }
-      });
-    }
 
     res.status(201).json({ success: true, data: training });
   } catch (err) {
@@ -94,24 +75,6 @@ exports.updateRecurrentTraining = async (req, res) => {
     ]);
 
     if (!training) return res.status(404).json({ success: false, message: "Record not found" });
-
-    // ✅ Notify on status change
-    if (req.body.remark) {
-      const user = training.employee?.userAccount;
-      if (user?.email) {
-        await sendTrainingEmail({
-          toEmail: user.email,
-          employeeName: `${user.firstname} ${user.lastname}`,
-          trainingType: "Recurrent Training",
-          details: {
-            "Training Topic": training.trainingType?.topic || "N/A",
-            "Status Updated To": training.remark,
-            "Tentative Schedule": training.tentativeScheduleDate
-              ? new Date(training.tentativeScheduleDate).toDateString() : "TBD"
-          }
-        });
-      }
-    }
 
     res.json({ success: true, data: training });
   } catch (err) {

@@ -48,7 +48,7 @@ const EmployeeList = () => {
     <div className="list-container">
       <div className="list-header">
         <h2>Employee Directory</h2>
-        <Link to="/talent/register" className="btn-add">
+        <Link to="/admin/talent/register" className="btn-add">
           Onboard New Staff
         </Link>
       </div>
@@ -88,7 +88,7 @@ const EmployeeList = () => {
                     </span>
                   </td>
                   <td className="actions-cell">
-                    <Link to={`/talent/edit/${emp._id}`} className="btn-edit">
+                    <Link to={`/admin/talent/edit/${emp._id}`} className="btn-edit">
                       Edit
                     </Link>
                     <button

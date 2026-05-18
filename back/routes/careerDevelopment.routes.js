@@ -29,7 +29,7 @@ router.post(
 router.get(
   "/",
   auth,
-  verifyRole(["superadmin", "manager", "team_leader"]),
+  verifyRole(["superadmin", "manager", "team_leader", "user"]),
   getCareers
 );
 
@@ -39,7 +39,7 @@ router.get(
 router.get(
   "/:id",
   auth,
-  verifyRole(["superadmin", "manager", "team_leader"]),
+  verifyRole(["superadmin", "manager", "team_leader", "user"]),
   getCareer
 );
 

@@ -1,16 +1,13 @@
-import { Outlet } from 'react-router-dom';
-import AdminNav from '../components/AdminNav';
-import './AdminLayout.css';
+import { Outlet } from "react-router-dom";
+import AdminNav from "../components/AdminNav";
 
-const AdminLayout = () => {
+export default function AdminLayout() {
   return (
-    <div className="admin-layout">
+    <div style={{ display: "flex" }}>
       <AdminNav />
-      <main className="admin-content">
-        <Outlet />
-      </main>
+      <div style={{ flex: 1, padding: "20px" }}>
+        <Outlet />   {/* 🔥 THIS FIXES YOUR ISSUE */}
+      </div>
     </div>
   );
-};
-
-export default AdminLayout;
+}

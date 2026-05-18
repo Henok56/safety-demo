@@ -10,14 +10,14 @@ router.use(authMiddleware);
 // 🚩 Fetch users who don't have a profile yet (MUST be above /:id)
 router.get(
   "/available-users", 
-  verifyRole(["superadmin", "manager"]), 
+  verifyRole(["superadmin", "manager", "team_leader", "user"]), 
   employeeController.getAvailableUsers
 );
 
 // Base routes for listing and creating
 router.route("/")
   .get(
-    verifyRole(["superadmin", "manager", "team_leader"]), 
+    verifyRole(["superadmin", "manager", "team_leader", "user"]), 
     employeeController.getEmployees
   )
   .post(
@@ -28,7 +28,7 @@ router.route("/")
 // Single record operations
 router.route("/:id")
   .get(
-    verifyRole(["superadmin", "manager", "team_leader"]), 
+    verifyRole(["superadmin", "manager", "team_leader", "user"]), 
     employeeController.getEmployee
   )
   .put(

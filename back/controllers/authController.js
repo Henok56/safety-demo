@@ -1,6 +1,9 @@
+// controllers/authController.js
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User"); 
+
+const User = require("../models/User");
 const Employee = require("../models/Employee.model");
 
 // =====================
@@ -10,50 +13,40 @@ exports.register = async (req, res) => {
   try {
     const { userid, email, password, firstname, lastname, role } = req.body;
 
-    if (!userid || !email || !password || !firstname || !lastname) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "All fields (Staff ID, Email, Password, Name) are mandatory." 
+    const existing = await User.findOne({
+      $or: [{ userid }, { email }],
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
       });
     }
 
-    const existingUser = await User.findOne({ $or: [{ userid }, { email }] });
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: "Staff ID or Email already registered" });
-    }
-
-    // 🚩 LOOKUP: Match user to existing Employee/Pilot record by ID
     const employee = await Employee.findOne({ regNo: userid });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({ 
+    const user = await User.create({
+      userid,
+      email,
       firstname,
       lastname,
-      userid, 
-      email, 
-      password: hashedPassword, 
-      role: role || "user",
-      employeeProfile: employee ? employee._id : null 
+      role: "user",
+      password,
+      employeeProfile: employee ? employee._id : null,
     });
-    
-    const savedUser = await newUser.save();
 
-    // 🚩 SYNC: If employee found, link this user account back to the employee record
     if (employee) {
-      employee.userAccount = savedUser._id;
+      employee.userAccount = user._id;
       await employee.save();
     }
-    
-    res.status(201).json({ 
-      success: true, 
-      message: `Personnel record for ${firstname} created successfully.` 
-    });
 
+    return res.status(201).json({
+      success: true,
+      message: "User created successfully",
+    });
   } catch (err) {
-    console.error("🔴 Register error:", err);
-    res.status(500).json({ success: false, message: err.message || "Internal Server Error" });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -64,73 +57,63 @@ exports.login = async (req, res) => {
   try {
     const { userid, password } = req.body;
 
-    // 1. Find User and populate their full Pilot/Employee details
-    const user = await User.findOne({ userid }).populate("employeeProfile");
-    
-    if (!user) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    const user = await User.findOne({ userid }).select("+password");
 
-    // 2. Compare Password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ success: false, message: "Invalid credentials" });
-
-    // 3. 🛡️ SELF-HEALING: Fix broken links between User and Employee collections
-    if (!user.employeeProfile) {
-      // Search by Staff ID (regNo) if the ObjectID link is missing
-      const employee = await Employee.findOne({ regNo: user.userid });
-      
-      if (employee) {
-        user.employeeProfile = employee._id;
-        employee.userAccount = user._id; // Ensure bi-directional link
-        await user.save();
-        await employee.save();
-        
-        // Re-fetch user with the now-linked profile for the response
-        await user.populate("employeeProfile");
-      }
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    // 4. Token generation
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
     const token = jwt.sign(
-      { id: user._id, userid: user.userid, role: user.role }, 
-      process.env.JWT_SECRET, 
+      { id: user._id, userid: user.userid, role: user.role },
+      process.env.JWT_SECRET,
       { expiresIn: "12h" }
     );
 
-    res.status(200).json({
+    return res.json({
       success: true,
-      data: { 
-        accessToken: token, 
-        user: { 
-          id: user._id, 
-          userid: user.userid, 
+      data: {
+        accessToken: token,
+        user: {
+          id: user._id,
+          userid: user.userid,
           role: user.role,
           firstname: user.firstname,
           lastname: user.lastname,
-          profile: user.employeeProfile // This now contains the full FDM/Training data
-        } 
+        },
       },
     });
+
   } catch (err) {
-    console.error("Login Crash:", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // =====================
-// GET CURRENT USER
+// GET ME
 // =====================
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .select("-password")
       .populate("employeeProfile");
-      
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    res.json({ success: true, data: user });
+    return res.json({ success: true, data: user });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: err.message });
   }
+};
+
+// =====================
+// LOGOUT
+// =====================
+exports.logout = async (req, res) => {
+  return res.json({ success: true, message: "Logged out" });
 };
 
 // =====================
@@ -138,23 +121,127 @@ exports.getMe = async (req, res) => {
 // =====================
 exports.resetPassword = async (req, res) => {
   try {
-    const { email, password, confirmPassword } = req.body;
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: "Passwords do not match" });
-    }
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    user.password = password;
     await user.save();
 
-    res.status(200).json({ success: true, message: "Password updated successfully" });
+    return res.json({
+      success: true,
+      message: "Password updated",
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.logout = (req, res) => res.json({ success: true, message: "Logged out" });
+// =====================
+// CHECK EMPLOYEE PROFILE
+// =====================
+exports.checkEmployeeProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("employeeProfile");
+
+    return res.json({
+      success: true,
+      hasProfile: !!user.employeeProfile,
+      employee: user.employeeProfile || null,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// =====================
+// REGISTER EMPLOYEE PROFILE
+// =====================
+exports.registerEmployeeProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    let employee = await Employee.findOne({ regNo: user.userid });
+
+    if (!employee) {
+      employee = await Employee.create({
+        regNo: user.userid,
+        userAccount: user._id,
+      });
+    }
+
+    user.employeeProfile = employee._id;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Employee profile linked",
+      employee,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// =====================
+// GET ALL EMPLOYEES
+// =====================
+exports.getAllEmployees = async (req, res) => {
+  try {
+    const employees = await Employee.find().populate("userAccount");
+
+    return res.json({ success: true, data: employees });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// =====================
+// GET ALL USERS
+// =====================
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+
+    return res.json({ success: true, data: users });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// =====================
+// GET USERS WITH PROFILE
+// =====================
+exports.getAllUsersWithProfile = async (req, res) => {
+  try {
+    const users = await User.find().populate("employeeProfile");
+
+    return res.json({ success: true, data: users });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// =====================
+// CHECK SPECIFIC USER PROFILE
+// =====================
+exports.checkUserEmployeeProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate("employeeProfile");
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.json({
+      success: true,
+      hasProfile: !!user.employeeProfile,
+      employee: user.employeeProfile || null,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};

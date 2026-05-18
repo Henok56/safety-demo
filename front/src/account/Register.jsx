@@ -12,20 +12,10 @@ export default function Register() {
     userid: "",
     email: "",
     password: "",
-    role: "user" // Default role
+    role: "user"
   });
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
-
-  // Available roles matching your Mongoose Enum
-  const roles = [
-    { value: "user", label: "Standard User" },
-    { value: "fdm_officer", label: "FDM Officer" },
-    { value: "team_leader", label: "Team Leader" },
-    { value: "manager", label: "Manager" },
-    { value: "scheduler", label: "Scheduler" },
-    { value: "superadmin", label: "Superadmin" }
-  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,10 +33,10 @@ export default function Register() {
        */
       const res = await api.post("/auth/register", formData);
       
-      setMessage({ text: "Personnel Record Created Successfully!", type: "success" });
+      setMessage({ text: "Account created successfully! Please log in.", type: "success" });
       
-      // Navigate to the user list after success
-      setTimeout(() => navigate("/register"), 2000);
+      // Redirect to login after successful registration
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       // Catching specific backend validation errors
       const errorMsg = err.response?.data?.message || "Registration failed. Please check inputs.";
@@ -64,7 +54,7 @@ export default function Register() {
             <UserPlus size={28} color="#fff" />
           </div>
           <h2>Register Personnel</h2>
-          <p>Initialize a new aviation staff account</p>
+          <p>Initialize a new user staff account</p>
         </div>
 
         {message.text && (
@@ -102,17 +92,10 @@ export default function Register() {
           </div>
 
           {/* 🚩 NEW: ROLE SELECTION DROPDOWN */}
-          <div className="input-group">
-            <label><Briefcase size={16}/> System Role</label>
-            <select name="role" value={formData.role} onChange={handleChange} className="role-select">
-              {roles.map(role => (
-                <option key={role.value} value={role.value}>{role.label}</option>
-              ))}
-            </select>
-          </div>
-  
+          <input type="hidden" name="role" value="user" />
+
           <button type="submit" className="btn-register" disabled={loading}>
-            {loading ? <div className="spinner"></div> : "Authorize & Create User"}
+            {loading ? <div className="spinner"></div> : "Create Account"}
           </button>
         </form>
       </div>

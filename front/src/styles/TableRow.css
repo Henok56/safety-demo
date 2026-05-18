@@ -1,0 +1,66 @@
+/* STATUS BADGES */
+.status {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status.stopped {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* ACTION BUTTONS */
+.actions {
+  display: flex;
+  gap: 5px;
+}
+
+.actions button {
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* COLORS */
+.actions .view {
+  background: #3498db;
+  color: white;
+}
+
+.actions .approve {
+  background: #2ecc71;
+  color: white;
+}
+
+.actions .reject {
+  background: #e74c3c;
+  color: white;
+}
+
+.actions .delete {
+  background: #7f8c8d;
+  color: white;
+}
+
+.actions button:hover {
+  opacity: 0.85;
+}

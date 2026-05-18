@@ -18,7 +18,7 @@ const {
 // GET - View all coachings
 router.get("/", 
   auth, 
-  verifyRole(["superadmin", "manager", "team_leader"]), 
+  verifyRole(["superadmin", "manager", "team_leader", "user"]), 
   getCoachings
 );
 

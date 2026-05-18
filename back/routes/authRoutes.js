@@ -1,21 +1,53 @@
+// C:\Users\HenokGs\Desktop\office_projects\back\routes\authRoutes.js
+
 const express = require("express");
 const router = express.Router();
 
-// Ensure this path matches where you keep your middleware
+// 🔐 Middleware
 const authMiddleware = require("../middleware/authMiddleware");
-const { register, login, logout, getMe, resetPassword } = require("../controllers/authController");
 
-console.log("✈️ Auth routes initialized");
+// 📦 Controllers
+const { 
+  register, 
+  login, 
+  logout, 
+  getMe, 
+  resetPassword,
+  checkEmployeeProfile,
+  registerEmployeeProfile,
+  getAllEmployees,
+  getAllUsers,
+  getAllUsersWithProfile,
+  checkUserEmployeeProfile
+} = require("../controllers/authController");
 
-// Public Routes
+console.log("✅ Auth routes loaded");
+
+// ==============================
+// 🌐 PUBLIC ROUTES
+// ==============================
 router.post("/register", register);
 router.post("/login", login);
+router.post("/reset-password", resetPassword);
 
-// Protected Routes (Require Token)
+// ==============================
+// 🔒 PROTECTED ROUTES
+// ==============================
 router.post("/logout", authMiddleware, logout);
 router.get("/me", authMiddleware, getMe);
 
-// Manual Reset Password
-router.post("/reset-password", authMiddleware, resetPassword);
+// ==============================
+// 👤 EMPLOYEE PROFILE
+// ==============================
+router.get("/check-employee-profile", authMiddleware, checkEmployeeProfile);
+router.post("/register-employee", authMiddleware, registerEmployeeProfile);
+router.get("/employees", authMiddleware, getAllEmployees);
+
+// ==============================
+// 👥 USERS
+// ==============================
+router.get("/users", authMiddleware, getAllUsers);
+router.get("/users/dropdown", authMiddleware, getAllUsersWithProfile);
+router.get("/users/:userId/check-profile", authMiddleware, checkUserEmployeeProfile);
 
 module.exports = router;

@@ -1,42 +1,51 @@
-// routes/scheduleRoutes.js
 const express = require("express");
 const router = express.Router();
 
-// Middlewares
-const authMiddleware = require("../middleware/authMiddleware");
+const scheduleCtrl = require("../controllers/scheduleController");
+
+// Correct import — your middleware exports a single function
+const verifyToken = require("../middleware/authMiddleware");
+
+// Correct import — your RBAC middleware exports a single function
 const verifyRoles = require("../middleware/verifyAdminMiddleware");
 
-// Controller
-const scheduleController = require("../controllers/scheduleController");
+// Debug logs (optional — remove after testing)
+console.log("verifyRoles import:", verifyRoles);
+console.log("scheduleCtrl:", scheduleCtrl);
+console.log("Route GET / typeof:", typeof scheduleCtrl.getSchedules);
+console.log("Route POST / typeof:", typeof scheduleCtrl.createSchedule);
+console.log("Route PUT / typeof:", typeof scheduleCtrl.updateSchedule);
+console.log("Route DELETE / typeof:", typeof scheduleCtrl.deleteSchedule);
 
-// ================= ROLE MAP =================
-// Define allowed roles for each action
-const ROLE_MAP = {
-  view: ["superadmin", "manager", "team_leader", "scheduler"],
-  create: ["superadmin", "manager", "team_leader", "scheduler"],
-  update: ["superadmin", "manager", "team_leader", "scheduler"],
-  delete: ["superadmin", "manager", "team_leader"], // scheduler cannot delete
-};
+// All routes require token
+router.use(verifyToken);
 
-// ================= HELPER =================
-// Returns array of middlewares; use spread in routes
-const protectAndAuthorize = (roles) => [authMiddleware, verifyRoles(roles)];
+// PUBLIC VIEW
+router.get("/public", scheduleCtrl.getPublicSchedules);
 
-// ================= PUBLIC ROUTES =================
-// Accessible without authentication
-router.get("/public", scheduleController.getPublicSchedules);
+// ADMIN & TREND VIEW
+router.get(
+  "/",
+  verifyRoles(["superadmin", "manager", "team_leader", "scheduler", "user"]),
+  scheduleCtrl.getSchedules
+);
 
-// ================= ADMIN/STAFF ROUTES =================
-// GET - View schedules
-router.get("/", ...protectAndAuthorize(ROLE_MAP.view), scheduleController.getSchedules);
+router.post(
+  "/",
+  verifyRoles(["manager", "scheduler"]),
+  scheduleCtrl.createSchedule
+);
 
-// POST - Create schedule
-router.post("/", ...protectAndAuthorize(ROLE_MAP.create), scheduleController.createSchedule);
+router.put(
+  "/:id",
+  verifyRoles(["manager", "team_leader", "scheduler"]),
+  scheduleCtrl.updateSchedule
+);
 
-// PUT - Update schedule
-router.put("/:id", ...protectAndAuthorize(ROLE_MAP.update), scheduleController.updateSchedule);
-
-// DELETE - Remove schedule
-router.delete("/:id", ...protectAndAuthorize(ROLE_MAP.delete), scheduleController.deleteSchedule);
+router.delete(
+  "/:id",
+  verifyRoles(["manager", "team_leader"]),
+  scheduleCtrl.deleteSchedule
+);
 
 module.exports = router;

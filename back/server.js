@@ -1,351 +1,229 @@
-require("dotenv").config({ path: require("path").resolve(__dirname, ".env") });
+// ===============================
+// CORE IMPORTS
+// ===============================
+require("dotenv").config();
 
+const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
-
-const { sendCrashAlert } = require("./emailrelated/mailer");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
 
-/* ===============================
-   BASIC MIDDLEWARE
-================================ */
+// ===============================
+// ENV CHECK
+// ===============================
+if (!process.env.MONGO_URI) {
+  console.warn("⚠️ Missing MONGO_URI in .env file");
+  console.warn("Please add: MONGO_URI=mongodb://localhost:27017/your_database");
+}
 
+// ===============================
+// REQUEST ID
+// ===============================
+app.use((req, res, next) => {
+  req.id = crypto.randomUUID();
+  res.setHeader("X-Request-ID", req.id);
+  next();
+});
+
+// ===============================
+// SECURITY & MIDDLEWARE
+// ===============================
 app.disable("x-powered-by");
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginOpenerPolicy: false,
+  })
+);
+
 app.use(compression());
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-if (process.env.NODE_ENV === "production") {
-  app.use(morgan("combined"));
-} else {
-  app.use(morgan("dev"));
-}
-
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500,
-  message: "Too many requests from this IP. Please try again later."
-});
-
-app.use("/api", apiLimiter);
-
-if (process.env.NODE_ENV === "production") {
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:"],
-          connectSrc: ["'self'", "https://api.yourdomain.com", "wss://api.yourdomain.com"]
-        }
-      }
-    })
-  );
-} else {
-  app.use(helmet({ contentSecurityPolicy: false }));
-}
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5000",
-  "http://localhost:80",
-  "http://localhost",
-  "https://www.yourdomain.com",
-  "https://api.yourdomain.com"
-];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    const isLocal =
-      origin.includes("localhost") ||
-      /^http:\/\/(10|172|192)\./.test(origin);
-
-    if (allowedOrigins.includes(origin) || isLocal) {
-      callback(null, true);
-    } else {
-      console.warn(`🚨 Blocked CORS request from: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-};
-
-app.use(cors(corsOptions));
-
-/* ===============================
-   STATIC FILES
-================================ */
-
+// Morgan logging
 app.use(
-  "/uploads",
-  (req, res, next) => {
-    try {
-      req.url = decodeURIComponent(req.url);
-      next();
-    } catch {
-      res.status(400).send("Invalid URL encoding");
-    }
-  },
-  express.static(path.join(__dirname, "uploads"))
+  morgan((tokens, req, res) =>
+    [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens["response-time"](req, res),
+      "ms",
+      "| ID:",
+      req.id,
+    ].join(" ")
+  )
 );
 
-/* ===============================
-   HEALTH CHECK (BEFORE MONGO)
-================================ */
+app.use(mongoSanitize());
 
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    uptime: process.uptime(),
-    mongoState: mongoose.connection.readyState,
-    env: process.env.NODE_ENV || "development"
-  });
+// Rate limiting
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 500, // limit each IP to 500 requests per windowMs
+    message: "Too many requests from this IP, please try again later.",
+  })
+);
+
+// ===============================
+// CORS
+// ===============================
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
+// ===============================
+// ROUTES
+// ===============================
+const routes = [
+  ["auth", "./routes/authRoutes"],
+  ["occurrences", "./routes/occurrenceRoutes"],
+  ["admin", "./routes/userRoutes"],
+  ["schedules", "./routes/scheduleRoutes"],
+  ["admin/audit", "./routes/auditRoutes"],
+  ["employees", "./routes/employee.routes"],
+  ["trainings", "./routes/training.routes"],
+  ["career", "./routes/careerDevelopment.routes"],
+  ["recurrent-training", "./routes/recurrentTraining.routes"],
+  ["leadership", "./routes/leadershipDevelopment.routes"],
+  ["coaching", "./routes/coaching.routes"],
+  ["succession", "./routes/successionPlanning.routes"],
+  ["talents", "./routes/talentRoutes"],
+  ["unproductive-time", "./routes/unproductiveTimeRoutes"],
+  ["fleet-assignments", "./routes/fleetAssignmentRoutes"],
+  ["culture-compliance", "./routes/cultureComplianceRoutes"],
+  ["fdm", "./routes/fdmRoutes"],
+  ["hazard-tracking", "./routes/hazardTrackingRoutes"],
+];
+
+console.log("\n📦 Loading Routes:");
+
+routes.forEach(([name, file]) => {
+  try {
+    const router = require(file);
+
+    if (!router) throw new Error("Router undefined");
+
+    app.use(`/api/${name}`, router);
+
+    console.log(`  ✔ /api/${name}`);
+  } catch (err) {
+    console.error(`  ✖ /api/${name} FAILED → ${err.message}`);
+  }
 });
 
-/* ===============================
-   MONGODB CONNECTION & STARTUP
-================================ */
+// ===============================
+// STATIC FILES
+// ===============================
+const uploads = path.join(__dirname, "uploads");
 
-const PORT = process.env.PORT || 4000;
-
-const getMongoUri = () => {
-  if (process.env.MONGO_URI) return process.env.MONGO_URI;
-
-  const secretPath = "/run/secrets/mongo_uri";
-
-  try {
-    if (fs.existsSync(secretPath)) {
-      const secret = fs.readFileSync(secretPath, "utf8").trim();
-      if (secret) return secret;
-    }
-  } catch (e) {
-    console.warn("Could not read mongo secret:", e.message);
-  }
-
-  return null;
-};
-
-const mongoUri = getMongoUri();
-
-if (!mongoUri) {
-  console.error("❌ MongoDB connection string missing.");
-  process.exit(1);
+if (!fs.existsSync(uploads)) {
+  fs.mkdirSync(uploads, { recursive: true });
+  console.log("📁 Uploads directory created");
 }
 
-let server;
+app.use("/uploads", express.static(uploads));
 
-// Connect to MongoDB first
-mongoose
-  .connect(mongoUri)
-  .then(() => {
-    console.log("✅ MongoDB Connected");
-
-    // THEN load routes
-    console.log("📦 Loading routes...");
-
-    try {
-      app.use("/api/auth", require("./routes/authRoutes"));
-      console.log("  ✅ Auth routes loaded");
-    } catch (err) {
-      console.error("  ❌ Auth routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/occurrences", require("./routes/occurrenceRoutes"));
-      console.log("  ✅ Occurrence routes loaded");
-    } catch (err) {
-      console.error("  ❌ Occurrence routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/admin", require("./routes/adminRoutes"));
-      console.log("  ✅ Admin routes loaded");
-    } catch (err) {
-      console.error("  ❌ Admin routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/schedules", require("./routes/scheduleRoutes"));
-      console.log("  ✅ Schedule routes loaded");
-    } catch (err) {
-      console.error("  ❌ Schedule routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/admin/audit", require("./routes/auditRoutes"));
-      console.log("  ✅ Audit routes loaded");
-    } catch (err) {
-      console.error("  ❌ Audit routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/fdm", require("./routes/fdmRoutes"));
-      console.log("  ✅ FDM routes loaded");
-    } catch (err) {
-      console.error("  ❌ FDM routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/employees", require("./routes/employee.routes"));
-      console.log("  ✅ Employee routes loaded");
-    } catch (err) {
-      console.error("  ❌ Employee routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/trainings", require("./routes/training.routes"));
-      console.log("  ✅ Training routes loaded");
-    } catch (err) {
-      console.error("  ❌ Training routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/career", require("./routes/careerDevelopment.routes"));
-      console.log("  ✅ Career routes loaded");
-    } catch (err) {
-      console.error("  ❌ Career routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/recurrent-training", require("./routes/recurrentTraining.routes"));
-      console.log("  ✅ Recurrent training routes loaded");
-    } catch (err) {
-      console.error("  ❌ Recurrent training routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/leadership", require("./routes/leadershipDevelopment.routes"));
-      console.log("  ✅ Leadership routes loaded");
-    } catch (err) {
-      console.error("  ❌ Leadership routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/coaching", require("./routes/coaching.routes"));
-      console.log("  ✅ Coaching routes loaded");
-    } catch (err) {
-      console.error("  ❌ Coaching routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/succession", require("./routes/successionPlanning.routes"));
-      console.log("  ✅ Succession routes loaded");
-    } catch (err) {
-      console.error("  ❌ Succession routes failed:", err.message);
-    }
-
-    try {
-      app.use("/api/talents", require("./routes/talentRoutes"));
-      console.log("  ✅ Talent routes loaded");
-    } catch (err) {
-      console.error("  ❌ Talent routes failed:", err.message);
-    }
-
-    // Load backup safely
-    try {
-      require("./emailrelated/backup");
-      console.log("  ✅ Backup scheduler loaded");
-    } catch (err) {
-      console.error("  ⚠️  Backup scheduler failed:", err.message);
-    }
-
-    console.log("📦 All routes loaded!");
-
-    /* ===============================
-       404 HANDLER (AFTER ALL ROUTES)
-    ================================ */
-    app.use("/api/*path", (req, res) => {
-      res.status(404).json({
-        success: false,
-        message: "API route not found"
-      });
-    });
-
-    /* ===============================
-       ERROR HANDLER
-    ================================ */
-    app.use((err, req, res, next) => {
-      console.error("💥 SYSTEM ERROR:", err.stack || err);
-
-      res.status(500).json({
-        success: false,
-        message: "Internal Flight System Error",
-        error: process.env.NODE_ENV === "development" ? err.message : undefined
-      });
-    });
-
-    // THEN start the server
-    server = app.listen(PORT, "0.0.0.0", () => {
-      console.log(`\n🚀 Server running: http://0.0.0.0:${PORT}`);
-      console.log(`📡 Mode: ${process.env.NODE_ENV}`);
-      console.log(`✨ System is LIVE!\n`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err.message);
-    process.exit(1);
-  });
-
-/* ===============================
-   GRACEFUL SHUTDOWN
-================================ */
-
-const shutdown = async () => {
-  console.log("🛑 Graceful shutdown initiated...");
-
-  if (server) {
-    server.close(() => console.log("HTTP server closed."));
-  }
+// ===============================
+// HEALTH CHECK (MongoDB Only)
+// ===============================
+app.get("/api/health", async (req, res) => {
+  const health = {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    mongodb: "unknown",
+  };
 
   try {
-    await mongoose.connection.close(false);
-    console.log("MongoDB closed.");
-  } catch (e) {
-    console.warn("Mongo shutdown error:", e.message);
+    health.mongodb =
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  } catch (err) {
+    health.mongodb = "error";
   }
 
-  process.exit(0);
-};
-
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
-
-/* ===============================
-   CRASH MONITORING
-================================ */
-
-process.on("uncaughtException", async (err) => {
-  console.error("💥 Uncaught Exception:", err);
-
-  try {
-    await sendCrashAlert({ error: err.stack || err.message });
-  } catch (e) {
-    console.error("Crash alert email failed:", e.message);
-  }
-
-  process.exit(1);
+  res.json(health);
 });
 
-process.on("unhandledRejection", async (reason) => {
-  console.error("💥 Unhandled Rejection:", reason);
+// Simple ping endpoint
+app.get("/api/ping", (req, res) => {
+  res.json({ success: true, message: "pong", timestamp: new Date().toISOString() });
+});
+
+// ===============================
+// 404 HANDLER
+// ===============================
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.originalUrl}`,
+  });
+});
+
+// ===============================
+// GLOBAL ERROR HANDLER
+// ===============================
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR:", err.message);
+  console.error(err.stack);
+
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
+});
+
+// ===============================
+// DATABASE CONNECT (Original MongoDB Connection)
+// ===============================
+const connectDB = async () => {
+  console.log("\n🔌 Connecting to MongoDB...");
+
+  if (!process.env.MONGO_URI) {
+    console.error("❌ MONGO_URI is not defined in .env file");
+    console.log("\n💡 Please add to your .env file:");
+    console.log("   MONGO_URI=mongodb://localhost:27017/your_database_name");
+    process.exit(1);
+  }
 
   try {
-    await sendCrashAlert({ error: String(reason) });
-  } catch (e) {
-    console.error("Crash alert email failed:", e.message);
+    // Original connection without deprecated options
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("🍃 MongoDB connected successfully");
+    console.log(`   Database: ${mongoose.connection.name}`);
+    console.log(`   Host: ${mongoose.connection.host}`);
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err.message);
+    process.exit(1);
   }
+};
+
+// ===============================
+// START SERVER
+// ===============================
+const PORT = process.env.PORT || 4000;
+const HOST = process.env.HOST || "0.0.0.0";
+
+connectDB().then(() => {
+  app.listen(PORT, HOST, () => {
+    console.log("\n================================");
+    console.log(`🚀 Server is running!`);
+    console.log(`📍 URL: http://${HOST}:${PORT}`);
+    console.log(`🕐 Started: ${new Date().toLocaleString()}`);
+    console.log("================================\n");
+  });
 });

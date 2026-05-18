@@ -1,50 +1,215 @@
+/* Sla.css - Roles & Responsibilities Page Styles */
+
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #eff6ff;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --background: #f8fafc;
+  --card-bg: #ffffff;
+  --hover-bg: #f1f5f9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .roles-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px;
-  font-family: "Segoe UI", sans-serif;
-  background: #f9fbfd;
-  color: #002b36;
+  padding: 2rem;
+  background: var(--background);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.header-icon {
+  font-size: 2rem;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 0.75rem;
+  border-radius: 1rem;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Page Description Card */
+.page-description-card {
+  background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%);
+  border-left: 4px solid var(--primary);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.page-description-card p {
+  font-size: 1rem;
   line-height: 1.6;
+  color: var(--text-primary);
 }
 
-.roles-container h1 {
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 30px;
-  color: #004d66;
+.page-description-card strong {
+  color: var(--primary);
 }
 
-.roles-container section {
-  margin-bottom: 40px;
-  padding: 20px;
-  background: #ffffff;
-  border-left: 5px solid #00c4ff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.roles-container h2 {
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  color: #0077a3;
+/* Info Card */
+.info-card {
+  background: var(--card-bg);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
-.roles-container ul {
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-light);
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.info-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.info-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.info-card ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
 }
 
-.roles-container ul li {
-  margin-bottom: 10px;
-  padding-left: 20px;
+.info-card li {
+  font-size: 0.813rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+  padding-left: 1.25rem;
   position: relative;
+  border-bottom: 1px solid var(--border);
 }
 
-.roles-container ul li::before {
-  content: "•";
+.info-card li:last-child {
+  border-bottom: none;
+}
+
+.info-card li::before {
+  content: "→";
   position: absolute;
   left: 0;
-  color: #00c4ff;
-  font-weight: bold;
+  color: var(--primary);
+}
+
+/* Demo Notice */
+.demo-notice {
+  background: var(--warning-light);
+  border-left: 4px solid var(--warning);
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  margin-top: 2rem;
+}
+
+.demo-notice p {
+  font-size: 0.875rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+.demo-notice strong {
+  color: #b45309;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .roles-container {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-icon {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  .page-description-card {
+    padding: 1rem;
+  }
+
+  .page-description-card p {
+    font-size: 0.875rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .info-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .roles-container {
+    padding: 0.75rem;
+  }
+
+  .page-header {
+    gap: 0.75rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .info-card h3 {
+    font-size: 1rem;
+  }
 }

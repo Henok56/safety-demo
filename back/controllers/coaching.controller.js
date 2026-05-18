@@ -1,6 +1,8 @@
 const Coaching = require("../models/Coaching.model");
-const { sendScheduleEmail } = require("../emailrelated/mailer");
 
+// ===========================
+// GET ALL COACHINGS
+// ===========================
 exports.getCoachings = async (req, res) => {
   try {
     const data = await Coaching.find()
@@ -18,6 +20,9 @@ exports.getCoachings = async (req, res) => {
   }
 };
 
+// ===========================
+// CREATE COACHING
+// ===========================
 exports.createCoaching = async (req, res) => {
   try {
     const sanitizedData = {
@@ -36,30 +41,11 @@ exports.createCoaching = async (req, res) => {
     const record = new Coaching(sanitizedData);
     await record.save();
 
-    // ✅ Added email to select
+    // NOTE: Keep this only if your frontend needs the populated fields immediately upon creation
     await record.populate([
       { path: "employee", populate: { path: "userAccount", select: "firstname lastname userid email" } },
       { path: "trainingType", select: "topic" }
     ]);
-
-    // ✅ Send email notification
-    const user = record.employee?.userAccount;
-    if (user?.email) {
-      await sendTrainingEmail({
-        toEmail: user.email,
-        employeeName: `${user.firstname} ${user.lastname}`,
-        trainingType: "Coaching",
-        details: {
-          "Training Topic": record.trainingType?.topic || "N/A",
-          "Proposed PL Level": record.proposedPLLevel,
-          "Start Month": record.coachingScheduleStartMonth
-            ? new Date(record.coachingScheduleStartMonth).toDateString() : "TBD",
-          "End Month": record.coachingScheduleEndMonth
-            ? new Date(record.coachingScheduleEndMonth).toDateString() : "TBD",
-          "Department": record.department || "N/A"
-        }
-      });
-    }
 
     res.status(201).json({ success: true, message: "Coaching record created successfully", data: record });
   } catch (err) {
@@ -72,6 +58,9 @@ exports.createCoaching = async (req, res) => {
   }
 };
 
+// ===========================
+// UPDATE COACHING
+// ===========================
 exports.updateCoaching = async (req, res) => {
   try {
     const updatedData = {
@@ -92,29 +81,15 @@ exports.updateCoaching = async (req, res) => {
 
     if (!record) return res.status(404).json({ success: false, message: "Record not found" });
 
-    // ✅ Notify on status change
-    if (req.body.remark) {
-      const user = record.employee?.userAccount;
-      if (user?.email) {
-        await sendTrainingEmail({
-          toEmail: user.email,
-          employeeName: `${user.firstname} ${user.lastname}`,
-          trainingType: "Coaching",
-          details: {
-            "Training Topic": record.trainingType?.topic || "N/A",
-            "Status Updated To": record.remark,
-            "Proposed PL Level": record.proposedPLLevel
-          }
-        });
-      }
-    }
-
     res.status(200).json({ success: true, message: "Coaching record updated", data: record });
   } catch (err) {
     res.status(400).json({ success: false, message: "Update Failed", error: err.message });
   }
 };
 
+// ===========================
+// DELETE COACHING
+// ===========================
 exports.deleteCoaching = async (req, res) => {
   try {
     const authorizedRoles = ["superadmin", "manager", "team_leader"];

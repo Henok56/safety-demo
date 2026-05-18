@@ -1,78 +1,82 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../api";
 import * as XLSX from "xlsx";
 import "../styles/ScheduleList.css";
 
-/* ============================
-   DATE HELPERS
-============================ */
-const getStartOfCurrentMonth = () => {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-};
-
-const getEndOfCurrentMonth = () => {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
-};
-
-const toInputDate = (date) =>
-  date.toISOString().split("T")[0];
-
-/* ============================
-   COMPONENT
-============================ */
 const ScheduleList = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Date range state
-  const [fromDate, setFromDate] = useState(getStartOfCurrentMonth());
-  const [toDate, setToDate] = useState(getEndOfCurrentMonth());
+  // Default to current month in local time
+  const getDefaultFrom = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+  };
+  const getDefaultTo = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  };
 
-  /* ============================
-     FETCH SCHEDULES
-  ============================ */
-  const getPublicSchedules = async () => {
+  const [fromDate, setFromDate] = useState(getDefaultFrom);
+  const [toDate, setToDate] = useState(getDefaultTo);
+
+  // Format date as YYYY-MM-DD without timezone shift
+  const toDateString = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  // Fetch schedules from API with date range
+  const fetchSchedules = async (from, to) => {
+    setLoading(true);
     try {
-      const res = await api.get("/schedules/public");
-      const data = Array.isArray(res.data?.data)
-        ? res.data.data
-        : Array.isArray(res.data)
-        ? res.data
-        : [];
+      const res = await api.get(
+        `/schedules/public?from=${toDateString(from)}&to=${toDateString(to)}`
+      );
+      const data = Array.isArray(res.data?.data) ? res.data.data : [];
       setTasks(data);
     } catch (err) {
       console.error("❌ Failed to fetch public schedules:", err);
+      setTasks([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch on mount and whenever date range changes
   useEffect(() => {
-    getPublicSchedules();
-  }, []);
+    fetchSchedules(fromDate, toDate);
+  }, [fromDate, toDate]);
 
-  /* ============================
-     FILTER BY DATE RANGE
-  ============================ */
+  // Handle from date change
+  const handleFromChange = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    const [y, m, d] = val.split("-").map(Number);
+    setFromDate(new Date(y, m - 1, d, 0, 0, 0));
+  };
+
+  // Handle to date change
+  const handleToChange = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    const [y, m, d] = val.split("-").map(Number);
+    setToDate(new Date(y, m - 1, d, 23, 59, 59));
+  };
+
+  // Client-side filter as safety net
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
       if (!t.startdate || !t.duedate) return false;
-
       const start = new Date(t.startdate);
       const end = new Date(t.duedate);
-
-      return (
-        start <= toDate &&
-        end >= fromDate
-      );
+      return start <= toDate && end >= fromDate;
     });
   }, [tasks, fromDate, toDate]);
 
-  /* ============================
-     EXPORT FILTERED DATA
-  ============================ */
+  // Export to Excel
   const handleExport = () => {
     if (filteredTasks.length === 0) {
       alert("No data to export!");
@@ -88,127 +92,88 @@ const ScheduleList = () => {
       "Due Date": t.duedate
         ? new Date(t.duedate).toLocaleDateString()
         : "-",
-      "Assigned To": t.assignedTo || "-",
+      "Assigned To": t.assignedTo
+        ? `${t.assignedTo.firstname} ${t.assignedTo.lastname}`
+        : "-",
       Status: t.status || "-",
-      Notes: t.notes || "-"
+      Notes: t.notes || "-",
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Schedules");
-
     XLSX.writeFile(
       wb,
-      `schedules_${toInputDate(fromDate)}_to_${toInputDate(toDate)}.xlsx`
+      `schedules_${toDateString(fromDate)}_to_${toDateString(toDate)}.xlsx`
     );
   };
 
-  /* ============================
-     HELPERS
-  ============================ */
-  const formatDate = (d) =>
-    d ? new Date(d).toLocaleDateString() : "-";
-
-  const getStatusClass = (status) => {
-    if (!status) return "";
-    const s = status.toLowerCase();
-    if (s.includes("pending")) return "status-pending";
-    if (s.includes("completed")) return "status-completed";
-    if (s.includes("overdue")) return "status-overdue";
-    return "";
-  };
-
-  /* ============================
-     RENDER
-  ============================ */
   return (
     <div className="user-schedule-list-page">
-      <div className="schedule-container premium-list">
+      <h1>Monthly Task List</h1>
 
-        {/* Header */}
-        <div className="list-header">
-          <h1>📅 Assigned Schedule Tasks</h1>
-          <button
-            onClick={handleExport}
-            className="export-btn secondary-btn"
-            disabled={filteredTasks.length === 0}
-          >
-            📤 Export
-          </button>
+      {/* Date Filter */}
+      <div className="date-filter-row">
+        <div>
+          <label>From</label>
+          <input
+            type="date"
+            value={toDateString(fromDate)}
+            onChange={handleFromChange}
+          />
         </div>
 
-        {/* Date Range Filter */}
-        <div className="date-filter-row">
-          <div className="date-filter">
-            <label>From</label>
-            <input
-              type="date"
-              value={toInputDate(fromDate)}
-              onChange={(e) =>
-                setFromDate(new Date(e.target.value))
-              }
-            />
-          </div>
-
-          <div className="date-filter">
-            <label>To</label>
-            <input
-              type="date"
-              value={toInputDate(toDate)}
-              onChange={(e) =>
-                setToDate(new Date(e.target.value + "T23:59:59"))
-              }
-            />
-          </div>
+        <div>
+          <label>To</label>
+          <input
+            type="date"
+            value={toDateString(toDate)}
+            onChange={handleToChange}
+          />
         </div>
 
-        {/* Content */}
-        {loading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <p>Loading schedules...</p>
-          </div>
-        ) : filteredTasks.length === 0 ? (
-          <div className="empty-state">
-            <p>No schedules found for the selected period.</p>
-          </div>
-        ) : (
-          <div className="table-wrapper">
-            <table className="user-schedule-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Activity</th>
-                  <th>Start</th>
-                  <th>Due</th>
-                  <th>Assigned To</th>
-                  <th>Status</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTasks.map((t, i) => (
-                  <tr key={t._id}>
-                    <td>{i + 1}</td>
-                    <td className="activity-cell">{t.activity}</td>
-                    <td>{formatDate(t.startdate)}</td>
-                    <td>{formatDate(t.duedate)}</td>
-                    <td className="assigned-cell">{t.assignedTo}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${getStatusClass(t.status)}`}
-                      >
-                        {t.status}
-                      </span>
-                    </td>
-                    <td className="notes-cell">{t.notes || "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <button onClick={handleExport} disabled={filteredTasks.length === 0}>
+          📤 Export
+        </button>
       </div>
+
+      {/* Content */}
+      {loading ? (
+        <p>Loading schedules...</p>
+      ) : filteredTasks.length === 0 ? (
+        <p>No schedules found for the selected period.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Activity</th>
+              <th>Start</th>
+              <th>Due</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTasks.map((t, i) => (
+              <tr key={t._id}>
+                <td>{i + 1}</td>
+                <td>{t.activity}</td>
+                <td>{new Date(t.startdate).toLocaleDateString()}</td>
+                <td>{new Date(t.duedate).toLocaleDateString()}</td>
+                <td>
+                  {t.assignedTo
+                    ? `${t.assignedTo.firstname} ${t.assignedTo.lastname}`
+                    : "-"}
+                </td>
+                <td>{t.status || "-"}</td>
+                <td>{t.notes || "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

@@ -20,14 +20,14 @@ const {
 // GET - View succession list
 router.get("/", 
   auth, 
-  role(["superadmin", "manager", "team_leader"]), 
+  role(["superadmin", "manager", "team_leader", "user"]), 
   getSuccessions
 );
 
 // GET - View specific plan
 router.get("/:id", 
   auth, 
-  role(["superadmin", "manager", "team_leader"]), 
+  role(["superadmin", "manager", "team_leader", "user"]), 
   getSuccession
 );
 

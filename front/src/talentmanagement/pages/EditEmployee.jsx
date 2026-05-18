@@ -37,7 +37,7 @@ export default function EditEmployee() {
       } catch (err) {
         console.error("Fetch Error:", err);
         alert("Employee records could not be retrieved.");
-        navigate("/talent/list");
+        navigate("/admin/talent/list");
       } finally {
         setLoading(false);
       }
@@ -55,7 +55,7 @@ export default function EditEmployee() {
     try {
       await api.put(`/employees/${id}`, formData);
       alert("Employee record updated successfully!");
-      navigate("/talent/list");
+      navigate("/admin/talent/list");
     } catch (err) {
       alert("Update failed: " + (err.response?.data?.message || "Server Error"));
     } finally {
@@ -113,7 +113,7 @@ export default function EditEmployee() {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="cancel-btn" onClick={() => navigate("/talent/list")}>
+            <button type="button" className="cancel-btn" onClick={() => navigate("/admin/talent/list")}>
               Discard Changes
             </button>
             <button type="submit" className="save-btn" disabled={submitting}>

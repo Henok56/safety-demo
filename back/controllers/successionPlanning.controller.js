@@ -1,5 +1,4 @@
 const Succession = require("../models/SuccessionPlanning.model");
-const { sendTrainingEmail } = require("../emailrelated/mailer");
 
 exports.getSuccessions = async (req, res) => {
   try {
@@ -43,29 +42,10 @@ exports.createSuccession = async (req, res) => {
     const record = new Succession(data);
     await record.save();
 
-    // ✅ Added email to select
     await record.populate({
       path: "employee",
       populate: { path: "userAccount", select: "firstname lastname userid email" }
     });
-
-    // ✅ Send email notification
-    const user = record.employee?.userAccount;
-    if (user?.email) {
-      await sendTrainingEmail({
-        toEmail: user.email,
-        employeeName: `${user.firstname} ${user.lastname}`,
-        trainingType: "Succession Planning",
-        details: {
-          "Current Position": record.currentPosition,
-          "Groomed For Position": record.groomedForPosition,
-          "Department": record.department || "N/A",
-          "Acting Assignment": record.actingAssignment?.detail || "N/A",
-          "Scheduled Month": record.actingAssignment?.scheduleMonth
-            ? new Date(record.actingAssignment.scheduleMonth).toDateString() : "TBD"
-        }
-      });
-    }
 
     res.status(201).json({ success: true, data: record });
   } catch (err) {
@@ -91,23 +71,6 @@ exports.updateSuccession = async (req, res) => {
     });
 
     if (!record) return res.status(404).json({ success: false, message: "Not found" });
-
-    // ✅ Notify on status change
-    if (req.body.remark) {
-      const user = record.employee?.userAccount;
-      if (user?.email) {
-        await sendTrainingEmail({
-          toEmail: user.email,
-          employeeName: `${user.firstname} ${user.lastname}`,
-          trainingType: "Succession Planning",
-          details: {
-            "Current Position": record.currentPosition,
-            "Groomed For Position": record.groomedForPosition,
-            "Status Updated To": record.remark
-          }
-        });
-      }
-    }
 
     res.json({ success: true, data: record });
   } catch (err) {

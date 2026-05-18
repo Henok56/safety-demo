@@ -1,85 +1,81 @@
 import React from "react";
+import { FiInfo, FiShield, FiTrendingUp, FiUsers, FiTarget, FiBookOpen } from "react-icons/fi";
 import "../styles/About.css";
 
 const AboutPage = () => {
   return (
     <div className="about-container">
-      <h1 className="about-title">
-        Flight Operations Safety Office – Overview
-      </h1>
+      <div className="about-header">
+        <FiInfo className="header-icon" />
+        <h1 className="about-title">Flight Operations Safety Office</h1>
+      </div>
 
-      <p className="about-intro">
-        The Flight Operations Safety Office is responsible for ensuring the safe
-        conduct of flight operations across the organization. Its primary role
-        is to identify safety hazards, assess operational risks, and promote
-        continuous improvement in aviation safety.
-      </p>
+      <div className="page-description-card">
+        <p>
+          This page provides an overview of the <strong>Flight Operations Safety Office</strong> - 
+          its purpose, key functions, and how it contributes to aviation safety.
+        </p>
+      </div>
 
-      <section className="about-section">
-        <h2>Key Responsibilities</h2>
+      <div className="info-grid">
+        <div className="info-card">
+          <FiShield className="card-icon" />
+          <h3>What is this page about?</h3>
+          <p>This page describes the role and responsibilities of the Flight Operations Safety Office in maintaining aviation safety standards.</p>
+        </div>
 
-        <div className="about-card">
-          <h3>Flight Data Monitoring (FDM) / Flight Data Analysis</h3>
+        <div className="info-card">
+          <FiTrendingUp className="card-icon" />
+          <h3>Flight Data Monitoring (FDM)</h3>
+          <p>This section would explain how flight data is analyzed to identify trends, deviations, and potential safety risks in flight operations.</p>
           <ul>
-            <li>
-              Includes a dedicated Flight Data Analysis Team responsible for
-              monitoring and analyzing flight data.
-            </li>
-            <li>
-              Identifies trends, deviations, and potential safety risks in
-              flight operations.
-            </li>
-            <li>
-              Uses findings to prevent incidents and enhance operational
-              procedures.
-            </li>
+            <li>Data analysis processes</li>
+            <li>Trend identification</li>
+            <li>Preventive measures</li>
           </ul>
         </div>
 
-        <div className="about-card">
+        <div className="info-card">
+          <FiBookOpen className="card-icon" />
           <h3>Safety Management System (SMS)</h3>
+          <p>This section covers the organization's approach to safety reporting, assurance, promotion, and regulatory compliance.</p>
           <ul>
-            <li>
-              Manages and supports the organization’s Safety Management System.
-            </li>
-            <li>
-              Covers safety reporting, safety assurance, safety promotion, and
-              regulatory compliance.
-            </li>
-            <li>
-              Promotes a proactive, non-punitive safety culture.
-            </li>
+            <li>Safety reporting</li>
+            <li>Safety assurance</li>
+            <li>Regulatory compliance</li>
           </ul>
         </div>
 
-        <div className="about-card">
+        <div className="info-card">
+          <FiTarget className="card-icon" />
           <h3>Safety Risk Management (SRM)</h3>
+          <p>This section explains how hazards are identified, risks are assessed, and corrective actions are implemented.</p>
           <ul>
-            <li>Conducts hazard identification and risk assessments.</li>
-            <li>
-              Evaluates and mitigates risks through corrective and preventive
-              actions.
-            </li>
-            <li>
-              Tracks safety recommendations to ensure effectiveness.
-            </li>
+            <li>Hazard identification</li>
+            <li>Risk assessment</li>
+            <li>Corrective actions</li>
           </ul>
         </div>
 
-        <div className="about-card">
-          <h3>Coordination and Collaboration</h3>
+        <div className="info-card">
+          <FiUsers className="card-icon" />
+          <h3>Coordination & Collaboration</h3>
+          <p>This section describes how the Safety Office works with other departments to integrate safety into operational decisions.</p>
           <ul>
-            <li>
-              Works closely with Flight Operations, Corporate Offices, and other
-              operational and support departments.
-            </li>
-            <li>
-              Ensures safety considerations are integrated into all operational
-              and organizational decisions.
-            </li>
+            <li>Cross-departmental coordination</li>
+            <li>Safety integration</li>
+            <li>Operational support</li>
           </ul>
         </div>
-      </section>
+      </div>
+
+      <div className="demo-notice">
+        <p>
+          <strong>Note:</strong> This is a demonstration version. The actual page would contain 
+          detailed information about the Flight Operations Safety Office's specific functions, 
+          processes, and safety initiatives.
+        </p>
+      </div>
     </div>
   );
 };

@@ -1,51 +1,75 @@
 import React, { useState } from "react";
-import api from "../api"; // Use your axios instance instead of raw axios
+import { useNavigate } from "react-router-dom";
+import api from "../api";
+import styles from "../styles/Login.module.css"; // Reuse the same CSS module
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+  const [identifier, setIdentifier] = useState("");
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
     setLoading(true);
+    setMessage("");
+    setIsError(false);
 
     try {
-      const res = await api.post("/auth/forgot-password", { email });
-      setMessage(res.data.message || "Password reset link sent to your email.");
+      const res = await api.post("/auth/forgot-password", { 
+        email: identifier.trim() 
+      });
+      setMessage(res.data.message || "Reset link sent to your email.");
+      setIsError(false);
+      setIdentifier(""); // Clear input on success
     } catch (err) {
-      setMessage(err.response?.data?.message || "Failed to send reset link");
-      console.error("Forgot password error:", err);
+      setMessage(err?.response?.data?.message || "Failed to send reset link");
+      setIsError(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-      <h2>Forgot Password</h2>
+    <div className={styles.loginContainer}>
+      <form className={styles.loginForm} onSubmit={handleSubmit}>
+        <h2>Forgot Password</h2>
+        <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px", textAlign: "center" }}>
+          Enter your Staff ID or Email to receive a reset link.
+        </p>
 
-      {message && (
-        <p style={{ color: message.includes("failed") ? "red" : "green" }}>{message}</p>
-      )}
+        {message && (
+          <div 
+            className={styles.message} 
+            style={{ color: isError ? "#d93025" : "#188038", marginBottom: "15px" }}
+          >
+            {message}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit}>
+        <label>Staff ID / Email</label>
         <input
           type="text"
-          placeholder="Enter your email or userid"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter Registration No. or Email"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
-          style={{ width: "100%", marginBottom: "10px", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ width: "100%", padding: "10px", borderRadius: "4px", backgroundColor: "#007bff", color: "#fff", border: "none" }}
-        >
-          {loading ? "Sending..." : "Send Reset Link"}
-        </button>
+
+        <div className={styles.buttonGroup}>
+          <button type="submit" className={styles.loginButton} disabled={loading}>
+            {loading ? <div className={styles.loadingSpinner}></div> : "Send Reset Link"}
+          </button>
+
+          <button
+            type="button"
+            className={styles.forgotPasswordBtn}
+            onClick={() => navigate("/login")}
+          >
+            Back to Login
+          </button>
+        </div>
       </form>
     </div>
   );

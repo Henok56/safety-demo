@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import "../styles/ResetPassword.css";
+import styles from "../styles/Login.module.css"; // Reuse the same CSS module for consistency
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -10,90 +10,117 @@ export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    setError("");
+    setIsError(false);
 
+    // Frontend Validations
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setIsError(true);
+      setMessage("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setIsError(true);
+      setMessage("Password must be at least 6 characters");
       return;
     }
 
     setLoading(true);
 
     try {
-      // POST to backend reset endpoint (no token, just email + new password)
       const res = await api.post(`/auth/reset-password`, {
-  email,
-  password,
-  confirmPassword,   // <-- include this
-});
+        email: email.trim(),
+        password,
+        confirmPassword, 
+      });
 
-
+      setIsError(false);
       setMessage(res.data.message || "Password reset successfully!");
 
+      // Redirect to login after a short delay so user can read the message
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 2500);
     } catch (err) {
       console.error("Reset password error:", err);
-      setError(err.response?.data?.message || "Failed to reset password.");
+      setIsError(true);
+      setMessage(err.response?.data?.message || "Failed to reset password.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="reset-container">
-      <div className="reset-box">
+    <div className={styles.loginContainer}>
+      <form className={styles.loginForm} onSubmit={handleSubmit}>
         <h2>Reset Password</h2>
-        <p className="reset-subtitle">Enter your email and new password below.</p>
+        <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px", textAlign: "center" }}>
+          Enter your email and choose a new secure password.
+        </p>
 
-        {message && <p className="success-text" style={{ color: "green", marginBottom: "10px" }}>{message}</p>}
-        {error && <p className="error-text">{error}</p>}
+        {message && (
+          <div 
+            className={styles.message} 
+            style={{ 
+              color: isError ? "#d93025" : "#188038", 
+              backgroundColor: isError ? "#fce8e6" : "#e6f4ea",
+              padding: "10px",
+              borderRadius: "4px",
+              marginBottom: "15px",
+              fontSize: "14px"
+            }}
+          >
+            {message}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        <label>Email Address</label>
+        <input
+          type="email"
+          placeholder="Enter your registered email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-          <label>New Password</label>
-          <input
-            type="password"
-            placeholder="Enter new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <label>New Password</label>
+        <input
+          type="password"
+          placeholder=""
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            placeholder="Confirm new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+        <label>Confirm New Password</label>
+        <input
+          type="password"
+          placeholder="••••••••"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Resetting..." : "Set New Password"}
+        <div className={styles.buttonGroup}>
+          <button type="submit" className={styles.loginButton} disabled={loading}>
+            {loading ? <div className={styles.loadingSpinner}></div> : "Set New Password"}
           </button>
-        </form>
-      </div>
+
+          <button
+            type="button"
+            className={styles.forgotPasswordBtn}
+            onClick={() => navigate("/login")}
+          >
+            Back to Login
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

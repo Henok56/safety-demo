@@ -1,128 +1,202 @@
+// controllers/employee.controller.js
+
+const mongoose = require("mongoose");
 const Employee = require("../models/Employee.model");
 const User = require("../models/User");
 
-// 🚩 PULL ALL: Identity data pulled from User table
+// =========================
+// 🔐 HELPERS
+// =========================
+
+const sendError = (res, code, message) =>
+  res.status(code).json({ success: false, message });
+
+const sendSuccess = (res, data, meta = {}) =>
+  res.json({ success: true, data, ...meta });
+
+const getUser = (req) => req.user || null;
+
+// =========================
+// 🚩 GET ALL EMPLOYEES
+// =========================
 exports.getEmployees = async (req, res) => {
   try {
     const employees = await Employee.find()
-      .populate("userAccount", "userid firstname lastname") // Pull common attributes
+      .populate("userAccount", "userid firstname lastname email role")
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, count: employees.length, data: employees });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-};
-
-// 🚩 CREATE/LINK: Automatically handles existing records
-exports.createEmployee = async (req, res) => {
-  try {
-    const { userAccount } = req.body;
-
-    // findOneAndUpdate with upsert: true handles both new and existing profiles
-    const employee = await Employee.findOneAndUpdate(
-      { userAccount }, 
-      { 
-        ...req.body, 
-        onboardedBy: req.user?.userid || "System",
-        lastUpdatedBy: req.user?.userid || "System" 
-      },
-      { new: true, upsert: true, runValidators: true }
-    );
-
-    // Update the User document to store the link
-    await User.findByIdAndUpdate(userAccount, { employeeProfile: employee._id });
-
-    res.status(201).json({
-      success: true,
-      message: "Employee profile linked and saved successfully",
-      data: employee
+    return sendSuccess(res, employees, {
+      count: employees.length,
     });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    return sendError(res, 500, err.message);
   }
 };
 
-// 🚩 GET AVAILABLE: Dropdown data
+// =========================
+// 🚩 CREATE / LINK EMPLOYEE
+// =========================
+exports.createEmployee = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { userAccount, department, currentPosition, costCenter, dateOfJoining } = req.body;
+
+    if (!userAccount) {
+      return sendError(res, 400, "User account is required");
+    }
+
+    const user = await User.findById(userAccount).session(session);
+    if (!user) {
+      return sendError(res, 404, "User not found");
+    }
+
+    const existingEmployee = await Employee.findOne({ userAccount }).session(session);
+
+    if (existingEmployee) {
+      return sendError(res, 400, "Employee already linked to this user");
+    }
+
+    const employee = await Employee.create(
+      [
+        {
+          userAccount,
+          regNo: user.userid,
+          department,
+          currentPosition,
+          costCenter,
+          dateOfJoining: dateOfJoining || new Date(),
+          onboardedBy: getUser(req)?.userid || "System",
+          lastUpdatedBy: getUser(req)?.userid || "System",
+          status: "active",
+        },
+      ],
+      { session }
+    );
+
+    const createdEmployee = employee[0];
+
+    await User.findByIdAndUpdate(
+      userAccount,
+      { employeeProfile: createdEmployee._id },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return sendSuccess(res, createdEmployee, {
+      message: "Employee created and linked successfully",
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return sendError(res, 500, err.message);
+  }
+};
+
+// =========================
+// 🚩 GET AVAILABLE USERS (NOT LINKED)
+// =========================
 exports.getAvailableUsers = async (req, res) => {
   try {
     const users = await User.find({
-      $or: [{ employeeProfile: { $exists: false } }, { employeeProfile: null }]
-    }).select("userid firstname lastname");
+      $or: [{ employeeProfile: null }, { employeeProfile: { $exists: false } }],
+    }).select("userid firstname lastname email role");
 
-    res.json({ success: true, data: users });
+    return sendSuccess(res, users);
   } catch (err) {
-    res.status(500).json({ success: false, message: "Error fetching available users" });
+    return sendError(res, 500, err.message);
   }
 };
 
-// 🚩 GET ONE
+// =========================
+// 🚩 GET SINGLE EMPLOYEE
+// =========================
 exports.getEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findById(req.params.id)
-      .populate("userAccount", "userid firstname lastname");
-    
-    if (!employee) return res.status(404).json({ success: false, message: "Not found" });
-    res.json({ success: true, data: employee });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-};
-
-exports.updateEmployee = async (req, res) => {
-  try {
-    const { firstName, lastName, regNo, department, status, remark } = req.body;
-
-    // 1. Update the Employee document first
-    const employee = await Employee.findByIdAndUpdate(
-      req.params.id,
-      { 
-        department, 
-        status, 
-        remark, 
-        lastUpdatedBy: req.user?.userid || "System" 
-      },
-      { new: true, runValidators: true }
+    const employee = await Employee.findById(req.params.id).populate(
+      "userAccount",
+      "userid firstname lastname email role"
     );
 
     if (!employee) {
-      return res.status(404).json({ success: false, message: "Employee not found" });
+      return sendError(res, 404, "Employee not found");
     }
 
-    // 2. Update the linked UserAccount document
-    // We use employee.userAccount (the ID stored in the employee record)
+    return sendSuccess(res, employee);
+  } catch (err) {
+    return sendError(res, 500, err.message);
+  }
+};
+
+// =========================
+// 🚩 UPDATE EMPLOYEE (SYNC SAFE)
+// =========================
+exports.updateEmployee = async (req, res) => {
+  try {
+    const { firstName, lastName, regNo, department, status, currentPosition, costCenter } =
+      req.body;
+
+    const employee = await Employee.findById(req.params.id);
+
+    if (!employee) {
+      return sendError(res, 404, "Employee not found");
+    }
+
+    // update employee
+    employee.department = department ?? employee.department;
+    employee.status = status ?? employee.status;
+    employee.currentPosition = currentPosition ?? employee.currentPosition;
+    employee.costCenter = costCenter ?? employee.costCenter;
+    employee.lastUpdatedBy = getUser(req)?.userid || "System";
+
+    await employee.save();
+
+    // sync user only if linked
     if (employee.userAccount) {
       await User.findByIdAndUpdate(employee.userAccount, {
         firstname: firstName,
         lastname: lastName,
-        userid: regNo // Syncing Registration Number to User ID
+        userid: regNo,
       });
     }
 
-    // 3. Return the fully populated updated record
-    const updatedRecord = await Employee.findById(req.params.id).populate("userAccount");
+    const updated = await Employee.findById(req.params.id).populate("userAccount");
 
-    res.json({ success: true, data: updatedRecord });
+    return sendSuccess(res, updated, {
+      message: "Employee updated successfully",
+    });
   } catch (err) {
-    console.error("Update Error:", err);
-    res.status(400).json({ success: false, message: "Update failed: " + err.message });
+    return sendError(res, 500, err.message);
   }
 };
 
-// 🚩 DELETE: Cleans up the link in the User model
+// =========================
+// 🚩 DELETE EMPLOYEE (SAFE UNLINK)
+// =========================
 exports.deleteEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findByIdAndDelete(req.params.id);
-    if (!employee) return res.status(404).json({ success: false, message: "Not found" });
+    const employee = await Employee.findById(req.params.id);
 
-    // Remove the profile link from the User so they can be re-onboarded
-    await User.findOneAndUpdate(
-      { employeeProfile: employee._id },
-      { $unset: { employeeProfile: "" } }
-    );
+    if (!employee) {
+      return sendError(res, 404, "Employee not found");
+    }
 
-    res.json({ success: true, message: "Employee record deleted successfully" });
+    await Employee.findByIdAndDelete(req.params.id);
+
+    if (employee.userAccount) {
+      await User.findByIdAndUpdate(employee.userAccount, {
+        $unset: { employeeProfile: "" },
+      });
+    }
+
+    return sendSuccess(res, null, {
+      message: "Employee deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error" });
+    return sendError(res, 500, err.message);
   }
 };

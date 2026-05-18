@@ -1,0 +1,39 @@
+services:
+  office_app:
+    build:
+      context: ./back
+      dockerfile: Dockerfile.back
+    container_name: office_projects-office_app-1
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./back:/app
+      # This links your local 'dist' folder to the container's '/app/front/dist'
+      - ./front/dist:/app/front/dist
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      MONGO_URI: ${MONGO_URI}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - office_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: office_projects-mongodb-1
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - office_network
+
+volumes:
+  mongo_data:
+
+networks:
+  office_network:
+    driver: bridge

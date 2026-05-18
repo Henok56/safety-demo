@@ -1,99 +1,42 @@
-require("dotenv").config();
-const nodemailer = require("nodemailer");
+const fetch = require("node-fetch");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+/**
+ * Sends a schedule notification email via EmailJS
+ */
+const sendScheduleEmail = async ({ toEmail, employeeName, schedule }) => {
+  const templateParams = {
+    to_email: toEmail,
+    employee_name: employeeName,
+    activity: schedule.activity,
+    start_date: schedule.startDate,
+    due_date: schedule.dueDate,
+    notes: schedule.notes || "Follow schedule as per assigned dates",
+  };
+
+  console.log("📨 Sending email:", templateParams);
+
+  try {
+    const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        service_id: "service_6j0wde3",
+        template_id: "template_40n0138",
+        accessToken: "xzQEaXB-unqgRoF9c",
+        template_params: templateParams,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ EmailJS error:", res.status, text);
+      throw new Error(`EmailJS failed with status ${res.status}`);
+    }
+
+    console.log(`✅ Email sent to ${toEmail}`);
+  } catch (err) {
+    console.error("⚠️ Email sending failed:", err.message);
   }
-});
-
-const emailHeader = (title, color) => `
-<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;border:1px solid #e5e7eb;border-radius:8px;">
-<div style="background:${color};padding:20px">
-<h2 style="color:white;margin:0;">Task & Training Notification System</h2>
-<p style="color:#e5e7eb">${title}</p>
-</div>
-<div style="padding:20px">
-<p style="background:#fef9c3;padding:10px;border-left:4px solid #eab308">
-This is an automated notification. Please do not reply.
-</p>
-`;
-
-const emailFooter = () => `
-</div>
-<div style="background:#f9fafb;padding:15px;text-align:center;font-size:12px;color:#999">
-© ${new Date().getFullYear()} Task & Training Notification System
-</div>
-</div>
-`;
-
-exports.sendScheduleEmail = async ({ toEmail, employeeName, schedule }) => {
-  await transporter.sendMail({
-    from: `"Task & Training System" <${process.env.EMAIL_USER}>`,
-    to: toEmail,
-    subject: "New Task Assignment",
-    html: `
-${emailHeader("New Schedule Assignment","#2563eb")}
-
-<p>Hello <b>${employeeName}</b>,</p>
-
-<p>You have been assigned a new activity.</p>
-
-<table style="width:100%;border-collapse:collapse">
-<tr>
-<td style="border:1px solid #ddd;padding:8px"><b>Activity</b></td>
-<td style="border:1px solid #ddd;padding:8px">${schedule.shift}</td>
-</tr>
-
-<tr>
-<td style="border:1px solid #ddd;padding:8px"><b>Due Date</b></td>
-<td style="border:1px solid #ddd;padding:8px">${schedule.date}</td>
-</tr>
-
-<tr>
-<td style="border:1px solid #ddd;padding:8px"><b>Notes</b></td>
-<td style="border:1px solid #ddd;padding:8px">${schedule.location}</td>
-</tr>
-</table>
-
-${emailFooter()}
-`
-  });
 };
 
-exports.sendCrashAlert = async ({ error }) => {
-  await transporter.sendMail({
-    from: `"System Monitor" <${process.env.EMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
-    subject: "🚨 Server Crash Alert",
-    html: `
-${emailHeader("Server Error","#dc2626")}
-
-<p>A server error occurred:</p>
-
-<pre style="background:#f3f4f6;padding:12px">${error}</pre>
-
-${emailFooter()}
-`
-  });
-};
-
-exports.sendBackupEmail = async ({ date, size }) => {
-  await transporter.sendMail({
-    from: `"Backup System" <${process.env.EMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
-    subject: `Backup Complete ${date}`,
-    html: `
-${emailHeader("Backup Completed","#16a34a")}
-
-<p>Backup completed successfully.</p>
-
-<p>Date: ${date}</p>
-<p>Size: ${(size / 1024).toFixed(2)} KB</p>
-
-${emailFooter()}
-`
-  });
-};
+module.exports = { sendScheduleEmail };

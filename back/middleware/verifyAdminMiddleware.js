@@ -13,19 +13,18 @@ const verifyRoles = (allowedRoles = []) => {
       });
     }
 
-    // Standardize the role to lowercase to avoid "Superadmin" vs "superadmin" issues
-    const role = req.user.role ? req.user.role.toLowerCase() : "";
+    // Standardize the role to lowercase and trim whitespace
+    const role = req.user.role ? String(req.user.role).toLowerCase().trim() : "";
     const userid = req.user.userid;
 
-    // 2. The Superadmin Bypass (The Absolute Rule)
-    if (role === "superadmin") {
-      console.log(`👑 Superadmin Bypass Granted: [${userid}]`);
+    // 2. The Superadmin / User Bypass: allow user and superadmin everywhere
+    if (role === "superadmin" || role === "user") {
+      console.log(`👑 Elevated Access Granted: [${userid}] (${role})`);
       return next();
     }
 
     // 3. Logic: Role check for other staff
-    // Standardize allowedRoles array to lowercase for comparison
-    const normalizedAllowedRoles = allowedRoles.map(r => r.toLowerCase());
+    const normalizedAllowedRoles = allowedRoles.map(r => String(r).toLowerCase().trim());
     const isAuthorized = normalizedAllowedRoles.includes(role);
 
     if (!isAuthorized) {

@@ -234,7 +234,7 @@ const FormField = ({ label, name, type, value, onChange, textarea }) => (
         />
         {typeof value === "string" && value.startsWith("/uploads/") && (
           <span className="current-file">
-            Current file: <a href={`http://${window.location.hostname}:5000${value}`} target="_blank" rel="noopener noreferrer">View</a>
+            Current file: <a href={`http://${window.location.hostname}:4000${value}`} target="_blank" rel="noopener noreferrer">View</a>
           </span>
         )}
       </div>

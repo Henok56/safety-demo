@@ -66,9 +66,10 @@ export const deleteSchedule = async (id) => {
 // ---------------------------
 
 // Get schedules assigned to current user
+// Get schedules assigned to current user
 export const getUserSchedules = async () => {
   try {
-    const res = await api.get("/schedule/user");
+    const res = await api.get("/schedules/user"); // <-- fixed path
     return res.data.data || [];
   } catch (err) {
     const message = err.response?.data?.message || err.message;

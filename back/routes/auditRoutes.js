@@ -19,7 +19,7 @@ const { getOccurrenceAudit, getScheduleAudit } = require("../controllers/auditCo
 // --------------------
 // 1️⃣ USER MANAGEMENT ROUTES
 // --------------------
-router.get("/users", authMiddleware, verifyAdminMiddleware(["superadmin", "manager"]), getAllUsers);
+router.get("/users", authMiddleware, verifyAdminMiddleware(["superadmin", "manager", "team_leader", "user"]), getAllUsers);
 router.put("/users/:id/role", authMiddleware, verifyAdminMiddleware(["superadmin"]), updateUserRole);
 router.post("/make-admin", authMiddleware, verifyAdminMiddleware(["superadmin"]), makeAdmin);
 router.delete("/users/:username", authMiddleware, verifyAdminMiddleware(["superadmin"]), deleteUser);
@@ -35,7 +35,7 @@ router.delete("/users/:username", authMiddleware, verifyAdminMiddleware(["supera
 router.get(
   "/audit/occurrences",
   authMiddleware,
-  verifyAdminMiddleware(["superadmin", "manager", "team_leader"]),
+  verifyAdminMiddleware(["superadmin", "manager", "team_leader", "user"]),
   getOccurrenceAudit // 🚩 Updated to match your controller
 );
 
@@ -46,7 +46,7 @@ router.get(
 router.get(
   "/audit/schedules",
   authMiddleware,
-  verifyAdminMiddleware(["superadmin", "manager", "team_leader"]),
+  verifyAdminMiddleware(["superadmin", "manager", "team_leader", "user"]),
   getScheduleAudit // 🚩 Updated to match your controller
 );
 

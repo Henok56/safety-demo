@@ -1,154 +1,237 @@
-/* Container to center the card */
+/* Register.css - Minimal & Consistent Color Scheme */
+
+/* CSS Variables for consistent theming across all pages */
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #eff6ff;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --error: #ef4444;
+  --error-light: #fee2e2;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --background: #f8fafc;
+  --card-bg: #ffffff;
+  --hover-bg: #f1f5f9;
+}
+
+/* Page Container */
 .register-page-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background: #f0f2f5;
-  padding: 20px;
-  font-family: 'Inter', sans-serif;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
 }
 
-/* Main Card */
+/* Card */
 .register-card {
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
   width: 100%;
-  max-width: 700px;
+  max-width: 560px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
+/* Header */
 .register-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
 }
 
 .icon-circle {
-  background: #2563eb;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  background: var(--primary);
+  border-radius: 1rem;
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin: 0 auto 15px;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
 }
 
 .register-header h2 {
-  color: #1e293b;
-  font-size: 24px;
-  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
 
 .register-header p {
-  color: #64748b;
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
-/* Grid layout for the form */
+/* Alert Banner */
+.alert-banner {
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-banner.success {
+  background: var(--success-light);
+  color: #065f46;
+  border-left: 3px solid var(--success);
+}
+
+.alert-banner.error {
+  background: var(--error-light);
+  color: #991b1b;
+  border-left: 3px solid var(--error);
+}
+
+/* Form */
 .register-grid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-row {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two columns */
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .input-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-}
-
-/* Make Email, Password, and Button span both columns if needed */
-.input-group.full-width, 
-.btn-register, 
-.alert-banner {
-  grid-column: span 2;
+  gap: 0.5rem;
 }
 
 .input-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
 }
 
-.input-group input, 
-.input-group select {
-  padding: 12px 16px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s ease;
+.input-group label svg {
+  color: var(--text-muted);
+}
+
+.input-group input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-family: inherit;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Action Button */
+.input-group input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Button */
 .btn-register {
-  background: #2563eb;
+  background: var(--primary);
   color: white;
   border: none;
-  padding: 14px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-register:hover {
-  background: #1d4ed8;
+.btn-register:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.btn-register:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-register:disabled {
-  background: #94a3b8;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Alert Banners */
-.alert-banner {
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.alert-banner.success { background: #dcfce7; color: #166534; }
-.alert-banner.error { background: #fee2e2; color: #991b1b; }
-
-/* Spinner for Loading */
+/* Spinner */
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
   border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Mobile Responsive */
-@media (max-width: 600px) {
-  .register-grid-form {
-    grid-template-columns: 1fr;
+/* Responsive */
+@media (max-width: 640px) {
+  .register-page-container {
+    padding: 1rem;
   }
-  .input-group.full-width, .btn-register, .alert-banner {
-    grid-column: span 1;
+
+  .register-card {
+    padding: 1.5rem;
+  }
+
+  .register-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .icon-circle {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .icon-circle svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }

@@ -12,12 +12,12 @@ const isLocal =
 
 /**
  * 🚀 DYNAMIC BASE_URL:
- * - Local: Uses the full address with port 5000.
+ * - Local: Uses the full address with port 4000.
  * - Production: Uses a relative path "/api". 
  * This kills the "Mixed Content" error by forcing the browser to stay on HTTPS.
  */
 const BASE_URL = isLocal 
-  ? `http://${window.location.hostname}:5000/api` 
+  ? `http://${window.location.hostname}:4000/api` 
   : "/api"; 
 
 const api = axios.create({
