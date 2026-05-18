@@ -20,3 +20,5 @@ vercel.json
 .env*.local
 back/uploads/
 uploads/
+back/Archive/
+back/uploads/
