@@ -1,41 +1,37 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  
-  // Base path for GitHub Pages or custom domain
-  base: '/',
-  
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
-    host: '0.0.0.0', 
+    host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    // Allow all hosts for public access
     allowedHosts: [
-      'pchqflfe1', 
-      'localhost', 
-      '127.0.0.1', 
+      'pchqflfe1',
+      'localhost',
+      '127.0.0.1',
       '.local',
       '.vercel.app',
       '.onrender.com',
       '.netlify.app',
-      'all'
+      'all',
     ],
-    // Enable CORS for development
     cors: true,
-    // Proxy only in development
     proxy: process.env.NODE_ENV !== 'production' ? {
       '/api': {
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path,
       },
-    } : undefined
+    } : undefined,
   },
-  
-  // Build configuration for production
   build: {
     outDir: 'dist',
     sourcemap: false,
@@ -45,34 +41,17 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           icons: ['react-icons', 'lucide-react'],
-          charts: ['recharts']
-        }
-      }
-    }
+        },
+      },
+    },
   },
-  
-  // Preview configuration
   preview: {
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    allowedHosts: ['*']
+    allowedHosts: ['*'],
   },
-  
-  // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'axios']
-  }
-});import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '/src': path.resolve(__dirname, './src')
-    }
-  }
-})
+    include: ['react', 'react-dom', 'react-router-dom', 'axios'],
+  },
+});
